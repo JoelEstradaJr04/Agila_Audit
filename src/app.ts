@@ -15,6 +15,7 @@ import departmentAdminRoutes from './routes/department_admin.routes';
 import userRoutes from './routes/user.routes';
 import summariesRoutes from './routes/summaries.routes';
 import apiKeysRoutes from './routes/apiKeys.routes';
+import auditLogsRoutes from './routes/auditLogs.routes';
 
 const app: Application = express();
 
@@ -66,6 +67,9 @@ app.get('/health', (req, res) => {
 // ============================================================================
 // API ROUTES
 // ============================================================================
+
+// Generic audit logs routes (with authentication)
+app.use('/api/audit-logs', auditLogsRoutes);
 
 // Role-based audit log routes
 app.use('/api/super-admin', superAdminRoutes);
