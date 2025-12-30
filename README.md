@@ -61,8 +61,23 @@ See the `docs/` folder for detailed documentation:
 - [Quick Reference](docs/QUICK_REFERENCE.md)
 - [How to Run](docs/HOW_TO_RUN.md)
 
+## 🌐 Deployment
+
+### Vercel Deployment (Frontend Only)
+
+This project can be deployed to Vercel for the frontend. See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for detailed instructions.
+
+**Quick steps:**
+1. Push to GitHub
+2. Import to Vercel
+3. Add environment variable: `NEXT_PUBLIC_API_BASE_URL`
+4. Deploy backend separately (Railway, Render, etc.)
+
+The backend needs to be deployed to a Node.js hosting service separately.
+
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Express.js Documentation](https://expressjs.com/)
+- [Vercel Deployment Guide](VERCEL_DEPLOYMENT.md)
