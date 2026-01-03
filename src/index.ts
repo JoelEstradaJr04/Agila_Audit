@@ -9,9 +9,12 @@ import prisma from './prisma/client';
 // Load environment variables
 dotenv.config();
 
-// Backend should use BACKEND_PORT (4004), not PORT (which is for Next.js frontend)
-const PORT = process.env.BACKEND_PORT || 4004;
-const HOST = process.env.HOST || 'localhost';
+// Backend port priority:
+// 1. Railway/production: use PORT (auto-provided by Railway)
+// 2. Local development: use BACKEND_PORT
+// 3. Default fallback: 4001
+const PORT = process.env.PORT || process.env.BACKEND_PORT || 4001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // ============================================================================
 // START SERVER
