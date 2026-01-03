@@ -6,12 +6,19 @@
     "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\"",
     "dev:frontend": "cd frontend && pnpm dev",
     "dev:backend": "cd backend && pnpm dev",
+    "build": "cd frontend && pnpm build",
     "build:frontend": "cd frontend && pnpm build",
     "build:backend": "cd backend && pnpm build",
+    "start": "cd frontend && pnpm start",
     "start:frontend": "cd frontend && pnpm start",
     "start:backend": "cd backend && pnpm start",
     "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install",
     "setup": "pnpm install:all && cd backend && pnpm prisma:generate && pnpm prisma:migrate && pnpm seed:apikeys"
+  },
+  "dependencies": {
+    "next": "16.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
