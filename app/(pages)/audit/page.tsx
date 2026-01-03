@@ -522,28 +522,29 @@ const AuditPage = () => {
       <div className="elements">
         <h1 className="title">Audit Logs</h1>
         <div className="settings">
-          <div className="searchBar">
-            <i className="ri-search-line" />
-            <input
-              type="text"
-              placeholder="Search logs..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            /> 
+          <div className="search-filter-container">
+            <div className="searchBar">
+              <i className="ri-search-line" />
+              <input
+                type="text"
+                placeholder="  Search logs..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              /> 
+            </div>
+            <FilterDropdown
+              sections={filterSections}
+              onApply={handleFilterApply}
+              initialValues={{
+                dateRange: { from: dateFrom, to: dateTo },
+                action: actionFilter ? actionFilter.split(',') : [],
+                role: roleFilter ? roleFilter.split(',') : [],
+                department: departmentFilter ? departmentFilter.split(',') : []
+              }}
+            />
           </div>
-          <FilterDropdown
-            sections={filterSections}
-            onApply={handleFilterApply}
-            initialValues={{
-              dateRange: { from: dateFrom, to: dateTo },
-              action: actionFilter ? actionFilter.split(',') : [],
-              role: roleFilter ? roleFilter.split(',') : [],
-              department: departmentFilter ? departmentFilter.split(',') : []
-            }}
-          />
 
           <div className="filters">
-            
             <button onClick={handleExport} id="export"><i className="ri-receipt-line" /> Export Logs</button>
           </div>
         </div>
