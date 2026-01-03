@@ -1,61 +1,24 @@
 {
-  "name": "audit_trail",
+  "name": "audit-trail-monorepo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"pnpm backend:dev\" \"pnpm frontend:dev\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\"",
-    "frontend:dev": "node scripts/start-frontend.js",
-    "setup": "pnpm install && pnpm prisma:generate && pnpm prisma:migrate && pnpm seed:apikeys",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "prisma:init": "npx prisma init --datasource-provider postgresql",
-    "prisma:generate": "npx prisma generate",
-    "prisma:migrate": "npx prisma migrate dev",
-    "prisma:migrate:prod": "npx prisma migrate deploy",
-    "prisma:studio": "npx prisma studio",
-    "backend:dev": "ts-node-dev --respawn --transpile-only --project tsconfig.server.json src/index.ts",
-    "backend:build": "tsc -p tsconfig.server.json",
-    "backend:start": "node dist/index.js",
-    "seed:apikeys": "ts-node --project tsconfig.server.json src/scripts/seedApiKeys.ts",
-    "seed:actions": "ts-node --project tsconfig.server.json prisma/seedActionTypes.ts",
-    "seed:auditlogs": "ts-node --project tsconfig.server.json prisma/seedAuditLogs.ts",
-    "seed:all": "pnpm seed:actions && pnpm seed:auditlogs"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.15.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.6.1",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.1",
-    "helmet": "^7.2.0",
-    "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.1",
-    "next": "16.1.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "sweetalert2": "^11.26.3"
+    "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\"",
+    "dev:frontend": "cd frontend && pnpm dev",
+    "dev:backend": "cd backend && pnpm dev",
+    "build:frontend": "cd frontend && pnpm build",
+    "build:backend": "cd backend && pnpm build",
+    "start:frontend": "cd frontend && pnpm start",
+    "start:backend": "cd backend && pnpm start",
+    "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install",
+    "setup": "pnpm install:all && cd backend && pnpm prisma:generate && pnpm prisma:migrate && pnpm seed:apikeys"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^4.17.23",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "concurrently": "^9.2.1",
-    "cross-env": "^7.0.3",
-    "dotenv-safe": "^8.2.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.1",
-    "prisma": "^5.15.0",
-    "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5"
+    "concurrently": "^9.2.1"
   },
-  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
 }

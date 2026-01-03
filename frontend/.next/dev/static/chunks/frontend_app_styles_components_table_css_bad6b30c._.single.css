@@ -1,0 +1,313 @@
+/* [project]/frontend/app/styles/components/table.css [app-client] (css) */
+.table-wrapper {
+  box-shadow: var(--box-shadow);
+  background-color: var(--foreground-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  justify-self: center;
+  width: 100%;
+  height: 70%;
+  margin-top: 1rem;
+  margin-bottom: 15px;
+  display: flex;
+  overflow: hidden;
+}
+
+.tableContainer {
+  scrollbar-width: none;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+}
+
+.tableContainer::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background-color: var(--table-row-color);
+  border-radius: 8px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead {
+  font-size: var(--table-header-font-size);
+  z-index: 2;
+  background-color: var(--table-header-color);
+  height: 40px;
+  color: var(--primary-text-color);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+tbody {
+  font-size: var(--table-body-font-size);
+  text-align: center;
+  color: var(--secondary-text-color);
+  vertical-align: middle;
+  background-color: var(--foreground-color);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  height: 40px;
+  transition: all .2s ease-in-out;
+}
+
+tbody tr:hover {
+  background-color: var(--table-row-color);
+}
+
+thead th, tbody td {
+  text-overflow: ellipsis;
+  padding: 12.5px 15px;
+}
+
+tbody .table-status {
+  white-space: nowrap;
+}
+
+tr:hover {
+  background-color: var(--table-row-hover-color) !important;
+  color: var(--primary-text-color) !important;
+  font-weight: normal !important;
+  transform: none !important;
+}
+
+.actionButtonsContainer .releaseBtn, .actionButtonsContainer .payBtn, .actionButtonsContainer .viewBtn, .actionButtonsContainer .editBtn, .actionButtonsContainer .deleteBtn, .actionButtonsContainer .submitBtn, .actionButtonsContainer .approveBtn, .actionButtonsContainer .rejectBtn, .actionButtonsContainer .exportBtn, .actionButtonsContainer .auditBtn, .actionButtonsContainer .refundBtn, .actionButtonsContainer .matchBtn, .actionButtonsContainer .postBtn {
+  border-radius: var(--table-action-button-border-radius) !important;
+  cursor: pointer !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--foreground-color) !important;
+  border: none !important;
+  outline: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  transition: background-color .3s !important;
+  display: flex !important;
+}
+
+.releaseBtn, .viewBtn, .payBtn, .selectBtn {
+  background-color: var(--success-color) !important;
+}
+
+.releaseBtn:hover, .viewBtn:hover, .payBtn:hover, .selectBtn {
+  background-color: var(--success-hover-color) !important;
+}
+
+.refundBtn {
+  background-color: var(--warning-color) !important;
+}
+
+.refundBtn:hover {
+  background-color: var(--warning-hover-color) !important;
+}
+
+.downloadBtn {
+  background-color: var(--info-color) !important;
+}
+
+.downloadBtn:hover {
+  background-color: var(--info-hover-color) !important;
+}
+
+tbody tr.installment-row {
+  background-color: var(--foreground-color);
+}
+
+tbody tr.installment-row:hover {
+  background-color: var(--table-row-hover-color) !important;
+}
+
+tbody tr.installment-row:first-of-type {
+  border-top: 2px solid var(--border-color);
+}
+
+tbody tr.installment-row td:first-child {
+  border-left: 3px solid #667eea;
+}
+
+.matchBtn {
+  background-color: #14b8a6 !important;
+}
+
+.matchBtn:hover {
+  background-color: #0d9488 !important;
+}
+
+.postBtn {
+  background-color: #9c27b0 !important;
+}
+
+.postBtn:hover {
+  background-color: #7b1fa2 !important;
+}
+
+thead th.sortable-header {
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background-color .2s;
+}
+
+thead th.sortable-header:hover {
+  background-color: #0000000d;
+}
+
+.loading-cell, .empty-cell {
+  color: var(--secondary-text-color);
+  font-style: italic;
+  text-align: center !important;
+  padding: 2rem !important;
+}
+
+.loading-cell {
+  animation: 1.5s ease-in-out infinite pulse;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
+}
+
+thead th:nth-child(2), tbody td:nth-child(2) {
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  width: 25ch !important;
+  max-width: 600px !important;
+  overflow: hidden !important;
+}
+
+tbody td:nth-child(2) {
+  word-break: break-all !important;
+}
+
+td.actionButtons {
+  background-color: #0000 !important;
+  flex-wrap: nowrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 100% !important;
+  padding: 0 !important;
+  display: table-cell !important;
+}
+
+.actionButtonsContainer {
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+}
+
+.actionButtonsContainer button:disabled {
+  cursor: not-allowed !important;
+  background-color: var(--border-color) !important;
+}
+
+.actionButtonsContainer .releaseBtn, .actionButtonsContainer .payBtn, .actionButtonsContainer .viewBtn, .actionButtonsContainer .editBtn, .actionButtonsContainer .deleteBtn, .actionButtonsContainer .submitBtn, .actionButtonsContainer .approveBtn, .actionButtonsContainer .rejectBtn, .actionButtonsContainer .exportBtn, .actionButtonsContainer .auditBtn {
+  border-radius: var(--table-action-button-border-radius) !important;
+  cursor: pointer !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--foreground-color) !important;
+  border: none !important;
+  outline: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  transition: background-color .3s !important;
+  display: flex !important;
+}
+
+.releaseBtn, .viewBtn, .payBtn {
+  background-color: var(--success-color) !important;
+}
+
+.releaseBtn:hover, .viewBtn:hover, .payBtn:hover {
+  background-color: var(--success-hover-color) !important;
+}
+
+.editBtn {
+  background-color: var(--info-color) !important;
+}
+
+.editBtn:hover {
+  background-color: var(--info-hover-color) !important;
+}
+
+.deleteBtn {
+  background-color: var(--error-color) !important;
+}
+
+.deleteBtn:hover {
+  background-color: var(--error-hover-color) !important;
+}
+
+.submitBtn {
+  background-color: var(--warning-color) !important;
+}
+
+.submitBtn:hover {
+  background-color: var(--warning-hover-color) !important;
+}
+
+.approveBtn {
+  background-color: var(--success-color) !important;
+}
+
+.approveBtn:hover {
+  background-color: var(--success-hover-color) !important;
+}
+
+.rejectBtn {
+  background-color: var(--error-color) !important;
+}
+
+.rejectBtn:hover {
+  background-color: var(--error-hover-color) !important;
+}
+
+.exportBtn {
+  background-color: var(--secondary-color) !important;
+}
+
+.exportBtn:hover {
+  background-color: var(--secondary-hover-color) !important;
+}
+
+.auditBtn {
+  background-color: var(--info-color) !important;
+}
+
+.auditBtn:hover {
+  background-color: var(--info-hover-color) !important;
+}
+
+/*# sourceMappingURL=frontend_app_styles_components_table_css_bad6b30c._.single.css.map*/

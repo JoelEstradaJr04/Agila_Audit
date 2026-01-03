@@ -1,0 +1,170 @@
+/* [project]/frontend/app/styles/components/filter.css [app-client] (css) */
+.filter {
+  position: relative;
+}
+
+.filter-btn {
+  background-color: var(--primary-color);
+  width: 85px;
+  height: 35px;
+  color: var(--foreground-color);
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: all .3s ease-in-out;
+  display: flex;
+}
+
+.filter-btn:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.filter-dropdown {
+  background: var(--foreground-color);
+  border: 1px solid var(--table-row-color);
+  width: 400px;
+  max-height: 400px;
+  color: var(--secondary-text-color);
+  z-index: 500;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 12px;
+  position: absolute;
+  top: 45px;
+  right: 0;
+  overflow-x: auto;
+  box-shadow: 0 4px 8px #0000001a;
+}
+
+.filter-dropdown::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.filter-dropdown::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.filter-dropdown::-webkit-scrollbar-track {
+  background-color: var(--table-row-color);
+  border-radius: 8px;
+}
+
+.filter-section {
+  margin-bottom: 12px;
+}
+
+.filter-section h3 {
+  color: var(--primary-text-color);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.date-range-inputs {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 15px;
+  display: flex;
+}
+
+.date-field {
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  display: flex;
+}
+
+.date-field input {
+  background-color: var(--table-row-color);
+  border: 1px solid var(--table-row-color);
+  border-radius: 4px;
+  flex: 1;
+  padding: 6px 12px;
+  transition: all .2s;
+}
+
+.date-field input:hover {
+  border: 1px solid var(--border-color);
+}
+
+.date-field input:focus {
+  border-color: var(--primary-text-color);
+  outline: none;
+}
+
+.filter-options {
+  flex-wrap: wrap;
+  gap: 8px;
+  display: flex;
+}
+
+.filter-option {
+  background-color: var(--table-row-color);
+  border: 1px solid var(--table-row-color);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 6px 12px;
+  transition: all .2s;
+}
+
+.filter-option:hover {
+  border: 1px solid var(--border-color);
+}
+
+.filter-option.selected {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: #edd;
+}
+
+.filter-actions {
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+  display: flex;
+}
+
+.filter-actions .clear-btn {
+  background-color: var(--table-row-color);
+  color: var(--primary-text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  flex: 1;
+  padding: 8px;
+  font-weight: 600;
+  transition: all .3s ease-in-out;
+}
+
+.filter-actions .clear-btn:hover {
+  background-color: var(--table-row-hover-color);
+}
+
+.filter-actions .apply-btn {
+  background-color: var(--primary-color);
+  color: var(--foreground-color);
+  cursor: pointer;
+  border-radius: 4px;
+  flex: 1;
+  padding: 8px;
+  font-weight: 600;
+  transition: all .3s ease-in-out;
+}
+
+.filter-actions .apply-btn:hover {
+  background-color: var(--primary-hover-color);
+}
+
+.filter-results {
+  color: var(--secondary-text-color);
+  margin-bottom: 10px;
+  padding-left: 5px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/*# sourceMappingURL=frontend_app_styles_components_filter_css_bad6b30c._.single.css.map*/

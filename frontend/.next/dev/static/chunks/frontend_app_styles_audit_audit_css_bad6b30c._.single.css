@@ -1,0 +1,368 @@
+/* [project]/frontend/app/styles/audit/audit.css [app-client] (css) */
+.auditPage {
+  font-family: var(--font-sans) !important;
+  color: var(--primary-text-color) !important;
+  padding: 20px !important;
+}
+
+.settings {
+  flex-wrap: wrap !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+}
+
+.settings select {
+  font-size: var(--page-button-font-size) !important;
+  background-color: var(--foreground-color) !important;
+  color: var(--primary-text-color) !important;
+  box-shadow: var(--box-shadow) !important;
+  width: 125px !important;
+  height: var(--search-input-height) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 0 8px !important;
+  transition: border-color .2s !important;
+}
+
+.settings .filters button {
+  font-size: var(--page-button-font-size) !important;
+  cursor: pointer !important;
+  background-color: var(--secondary-color) !important;
+  color: var(--button-font-color) !important;
+  box-shadow: var(--box-shadow) !important;
+  width: 125px !important;
+  height: var(--search-input-height) !important;
+  border: none !important;
+  border-radius: 5px !important;
+  transition: background-color .2s !important;
+}
+
+.settings .filters button:hover {
+  background-color: var(--secondary-hover-color) !important;
+}
+
+.searchBar {
+  padding: var(--search-input-padding-right) !important;
+  width: var(--search-input-width) !important;
+  height: var(--search-input-height) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--search-input-border-radius) !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  display: flex !important;
+}
+
+.searchBar input[type="text"] {
+  padding-right: 0 8px !important;
+  border-radius: var(--search-bar-border-radius) !important;
+  width: var(--search-input-width) !important;
+  height: var(--search-input-height) !important;
+  border: none !important;
+  outline: none !important;
+  flex: 1 !important;
+  font-size: 14px !important;
+}
+
+.filters {
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  display: flex !important;
+}
+
+.filterDate {
+  margin-right: 1rem !important;
+}
+
+.dateFilter, #categoryFilter {
+  gap: var(--page-button-gap) !important;
+  font-size: var(--page-button-font-size) !important;
+  height: var(--page-button-height) !important;
+  width: var(--page-button-width) !important;
+  border-radius: var(--page-button-border-radius) !important;
+  box-shadow: var(--box-shadow) !important;
+  padding: 0 8px !important;
+}
+
+#categoryFilter {
+  max-width: max-content !important;
+}
+
+#export {
+  height: var(--page-button-height) !important;
+  width: var(--page-button-width) !important;
+  font-size: var(--page-button-font-size) !important;
+  border-radius: var(--page-button-border-radius) !important;
+  cursor: pointer !important;
+  background-color: var(--secondary-color) !important;
+  color: var(--button-font-color) !important;
+  border: none !important;
+  transition: background-color .3s !important;
+}
+
+#export:hover {
+  background-color: var(--secondary-hover-color) !important;
+}
+
+.viewButton {
+  background-color: var(--info-color) !important;
+  color: var(--button-font-color) !important;
+  border-radius: var(--table-action-button-border-radius) !important;
+  cursor: pointer !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  transition: background-color .2s !important;
+}
+
+.viewButton:hover {
+  background-color: var(--info-hover-color) !important;
+}
+
+.exportButton {
+  color: var(--button-font-color) !important;
+  cursor: pointer !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: background-color .2s !important;
+}
+
+.modalOverlay {
+  z-index: 1000 !important;
+  background-color: #00000080 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  display: flex !important;
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+.viewDetailsModal {
+  background: var(--foreground-color) !important;
+  padding: var(--modal-padding) !important;
+  border-radius: var(--modal-border-radius) !important;
+  width: 90% !important;
+  max-width: 600px !important;
+  max-height: 80vh !important;
+  box-shadow: var(--box-shadow) !important;
+  border: 1px solid var(--border-color) !important;
+  position: relative !important;
+  overflow-y: auto !important;
+}
+
+.modalHeader {
+  border-bottom: 1px solid var(--border-color) !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 10px !important;
+  display: flex !important;
+}
+
+.modalHeader h2 {
+  font-size: var(--title-font-size) !important;
+  font-weight: var(--title-font-weight) !important;
+  color: var(--primary-text-color) !important;
+  margin: 0 !important;
+}
+
+.closeButton {
+  cursor: pointer !important;
+  color: var(--secondary-text-color) !important;
+  background: none !important;
+  border: none !important;
+  font-size: 24px !important;
+}
+
+.closeButton:hover {
+  color: var(--primary-text-color) !important;
+}
+
+.modalContent {
+  flex-direction: column !important;
+  gap: 15px !important;
+  display: flex !important;
+}
+
+.detailRow {
+  gap: 10px !important;
+  padding: 8px 0 !important;
+  display: flex !important;
+}
+
+.detailRow strong {
+  min-width: 120px !important;
+  color: var(--secondary-text-color) !important;
+}
+
+.fullDetails {
+  white-space: pre-wrap !important;
+  color: var(--primary-text-color) !important;
+}
+
+.audit-details-container {
+  gap: 1rem;
+  padding: 1.5rem;
+  display: grid;
+}
+
+.audit-detail-card {
+  background: var(--foreground-color);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.audit-detail-row {
+  border-bottom: 1px solid var(--table-header-color);
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 0;
+  display: flex;
+}
+
+.audit-detail-row:last-child {
+  border-bottom: none;
+}
+
+.audit-detail-icon {
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 50%;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  font-size: .875rem;
+  display: flex;
+}
+
+.audit-detail-content {
+  flex: 1;
+}
+
+.audit-detail-label {
+  color: var(--secondary-text-color);
+  margin-bottom: .25rem;
+  font-size: .875rem;
+  font-weight: 600;
+}
+
+.audit-detail-value {
+  color: var(--primary-text-color);
+  font-size: .95rem;
+  line-height: 1.4;
+}
+
+.action-badge {
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border-radius: 16px;
+  padding: .25rem .75rem;
+  font-size: .75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.action-badge.create {
+  background: var(--success-chip-bg-color);
+  color: var(--success-chip-text-color);
+}
+
+.action-badge.update {
+  background: var(--info-chip-bg-color);
+  color: var(--info-chip-text-color);
+}
+
+.action-badge.delete {
+  background: var(--error-chip-bg-color);
+  color: var(--error-chip-text-color);
+}
+
+.action-badge.export {
+  background: var(--warning-chip-bg-color);
+  color: var(--warning-chip-text-color);
+}
+
+.action-badge.view {
+  background: var(--info-chip-bg-color);
+  color: var(--info-chip-text-color);
+}
+
+.code-text {
+  background: var(--table-header-color);
+  color: var(--primary-text-color);
+  border-radius: 4px;
+  padding: .25rem .5rem;
+  font-family: Monaco, Consolas, monospace;
+  font-size: .875rem;
+}
+
+.details-section {
+  margin-top: 1rem;
+}
+
+.details-section .audit-detail-value {
+  background: var(--modal-content-background-color);
+  white-space: pre-wrap;
+  border-left: 4px solid var(--primary-color);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: Monaco, Consolas, monospace;
+  font-size: .875rem;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .auditPage {
+    padding: 1rem !important;
+  }
+
+  .settings {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .filters input[type="date"], .filters select {
+    width: 100% !important;
+  }
+
+  .importExport {
+    justify-content: space-between !important;
+  }
+
+  .viewDetailsModal {
+    width: 95% !important;
+    padding: 1rem !important;
+  }
+
+  .audit-details-container {
+    gap: .75rem;
+    padding: 1rem;
+  }
+
+  .audit-detail-row {
+    padding: .5rem 0;
+  }
+
+  .audit-detail-icon {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+  }
+
+  .audit-detail-label {
+    font-size: .8rem;
+  }
+
+  .audit-detail-value {
+    font-size: .9rem;
+  }
+}
+
+/*# sourceMappingURL=frontend_app_styles_audit_audit_css_bad6b30c._.single.css.map*/

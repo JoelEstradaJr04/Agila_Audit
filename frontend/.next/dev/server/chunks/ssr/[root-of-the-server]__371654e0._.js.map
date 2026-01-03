@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///C:/capstone/audit/frontend/app/page.tsx"],"sourcesContent":["// app/page.tsx\nimport { redirect } from \"next/navigation\";\n\nexport default function Home() {\n  redirect(\"/audit\");\n}\n"],"names":[],"mappings":";;;;AAAA,eAAe;AACf;AAAA;;AAEe,SAAS;IACtB,IAAA,gTAAQ,EAAC;AACX"}}]
+}

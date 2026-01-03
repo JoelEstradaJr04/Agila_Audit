@@ -1,54 +1,48 @@
+### First Time Setup
 
-# Quick Start Commands
+```bash
+# 1. Install all dependencies
+pnpm install:all
 
-First time setup:
-pnpm setup
+# 2. Configure environment variables
+cp frontend/.env.example frontend/.env
+cp backend/.env.example backend/.env
+# Edit both .env files
 
-Run both backend and frontend together:
+# 3. Setup database
+cd backend ; pnpm prisma:generate ; pnpm prisma:migrate ; pnpm seed:apikeys
+cd ..
+
+# 4. Run both apps
+pnpm dev
+```
+
+### Daily Development
+
+```bash
+# Run both apps (from root)
 pnpm dev
 
-Run individually:
-Backend only: pnpm backend:dev
-Frontend only: pnpm frontend:dev
+# Or run individually
+pnpm dev:frontend  # Frontend only on http://localhost:4000
+pnpm dev:backend   # Backend only on http://localhost:5000
+```
 
-# Port Configuration
-Frontend (Next.js): PORT=3000 (customizable in .env)
-Backend (Express): BACKEND_PORT=4004 (customizable in .env)
+### Working on Frontend Only
 
-To change ports, edit .env file:
-- PORT=3000 (frontend)
-- BACKEND_PORT=4004 (backend)
-- Update CORS_ORIGIN accordingly
+```bash
+cd frontend
+pnpm dev
+# Make changes, hot reload works
+pnpm build      # Test production build
+```
 
-# Production Build
-npm run build
+### Working on Backend Only
 
-# Database Setup
-pnpm install
-npx prisma migrate dev --name AuditDB
-
-# Seed Database (TypeScript files are used)
-pnpm seed:actions      # Seed action types (CREATE, UPDATE, DELETE, etc.)
-pnpm seed:auditlogs    # Seed 60 sample audit log records for testing
-pnpm seed:all          # Seed both action types and audit logs (recommended)
-
-Note: 
-- Run seed:actions first before seed:auditlogs (or use seed:all)
-- seed:all now includes 60+ audit log records for development/testing
-- API key seeder is excluded from seed:all (apiKey model doesn't exist in schema)
-
-# API Endpoints
-For SAVING Actions (src\routes\auditLogs.routes.ts):
-POST http://localhost:4004/api/audit-logs
-
-For VIEWING Actions:
-GET http://localhost:4004/api/audit-logs
-
-# Configuration Files
-For UserRole Name condition:
-src\utils\validation.util.ts
-src\types\auditLog.d.ts
-
-# Seeder Files (TypeScript versions are used)
-Action Types: prisma/seedActionTypes.ts
-API Keys: src/scripts/seedApiKeys.ts
+```bash
+cd backend
+pnpm dev
+# Make changes, hot reload works
+pnpm build      # Compile TypeScript
+pnpm prisma:studio  # Open database GUI
+```
