@@ -184,6 +184,7 @@ const AuditPage = () => {
   const [dateTo, setDateTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [sortField, setSortField] = useState<keyof AuditLog | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -243,7 +244,24 @@ const AuditPage = () => {
   // fetch function moved out so it can be retried from ErrorDisplay
   const fetchAuditLogs = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/audit-logs`);
+      // Build query parameters for backend pagination
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+      });
+
+      // Add filters if they exist
+      if (search) params.append('search', search);
+      if (tableFilter) params.append('entity_type', tableFilter);
+      if (actionFilter) params.append('action_type_code', actionFilter);
+      if (dateFrom) params.append('dateFrom', dateFrom);
+      if (dateTo) params.append('dateTo', dateTo);
+      if (sortField) {
+        params.append('sortBy', sortField);
+        params.append('sortOrder', sortOrder);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/audit-logs?${params.toString()}`);
       if (!response.ok) {
         throw new Error(response.statusText || 'Failed to fetch audit logs');
       }
@@ -293,6 +311,13 @@ const AuditPage = () => {
       }));
       
       setAuditLogs(transformedLogs);
+      
+      // Extract total from backend metadata
+      if (data && data.meta && typeof data.meta.total === 'number') {
+        setTotalRecords(data.meta.total);
+      } else {
+        setTotalRecords(transformedLogs.length);
+      }
     } catch (err: unknown) {
       console.error('Error fetching audit logs:', err);
       setAuditLogs([]); // Always set to empty array on error to prevent .filter() errors
@@ -302,10 +327,11 @@ const AuditPage = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     fetchAuditLogs();
-  }, []);
+  }, [currentPage, pageSize, search, tableFilter, actionFilter, dateFrom, dateTo, sortField, sortOrder]);
 
-  // Sort handler
+  // Sort handler - will trigger useEffect to refetch
   const handleSort = (field: keyof AuditLog) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -315,71 +341,15 @@ const AuditPage = () => {
     }
   };
 
-  // Safely filter logs (ensure auditLogs is always an array)
-  const filteredLogs = (Array.isArray(auditLogs) ? auditLogs : []).filter((log) => {
-    const matchesSearch = 
-      (log.details && typeof log.details === 'string' && log.details.toLowerCase().includes(search.toLowerCase())) ||
-      (log.performed_by && typeof log.performed_by === 'string' && log.performed_by.toLowerCase().includes(search.toLowerCase())) ||
-      (log.action && typeof log.action === 'string' && log.action.toLowerCase().includes(search.toLowerCase()));
-    
-    const matchesTable = tableFilter ? 
-      tableFilter.split(',').some(table => log.table_affected === table.trim()) : true;
-    
-    // Safely handle date parsing
-    let logDate = '';
-    try {
-      const dateObj = new Date(log.timestamp || log.action_at);
-      if (!isNaN(dateObj.getTime())) {
-        logDate = dateObj.toISOString().split('T')[0];
-      }
-    } catch {
-      console.warn('Invalid date for log:', log);
-    }
-    
-    const matchesDate = (!dateFrom || logDate >= dateFrom) && (!dateTo || logDate <= dateTo);
-    
-    const matchesAction = actionFilter ? 
-      actionFilter.split(',').some(action => log.action === action.trim()) : true;
-    
-    // Note: Add role and department fields to AuditLog type and backend if needed
-    // For now, these filters are placeholders that always return true
-    const matchesRole = roleFilter ? 
-      roleFilter.split(',').some(role => log.performed_by?.toLowerCase().includes(role.toLowerCase())) : true;
-    
-    const matchesDepartment = departmentFilter ? 
-      departmentFilter.split(',').some(dept => log.details?.toLowerCase().includes(dept.toLowerCase())) : true;
-    
-    return matchesSearch && matchesTable && matchesDate && matchesAction && matchesRole && matchesDepartment;
-  });
-
-  // Apply sorting
-  const sortedLogs = sortField ? [...filteredLogs].sort((a, b) => {
-    const aVal = a[sortField];
-    const bVal = b[sortField];
-    
-    if (aVal === null || aVal === undefined) return 1;
-    if (bVal === null || bVal === undefined) return -1;
-    
-    if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return sortOrder === 'asc' 
-        ? aVal.localeCompare(bVal)
-        : bVal.localeCompare(aVal);
-    }
-    
-    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
-  }) : filteredLogs;
-
-  const indexOfLastRecord = currentPage * pageSize;
-  const indexOfFirstRecord = indexOfLastRecord - pageSize;
-  const currentRecords = sortedLogs.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(sortedLogs.length / pageSize);
+  // Backend handles pagination, filtering, and sorting
+  // Display data directly from backend
+  const currentRecords = auditLogs;
+  const totalPages = Math.ceil(totalRecords / pageSize);
 
   const handleExport = async () => {
     try {
       // Check if there are records to export
-      if (sortedLogs.length === 0) {
+      if (totalRecords === 0) {
         const warningResult = await showConfirmation(
           'No records found with the current filters. Do you want to proceed with exporting an empty dataset?',
           'Warning'
@@ -398,7 +368,7 @@ const AuditPage = () => {
           <p><strong>Role Filter:</strong> ${roleFilter || 'All Roles'}</p>
           <p><strong>Department Filter:</strong> ${departmentFilter || 'All Departments'}</p>
           <p><strong>Search Term:</strong> ${search || 'None'}</p>
-          <p><strong>Number of Records:</strong> ${sortedLogs.length}</p>
+          <p><strong>Number of Records:</strong> ${totalRecords}</p>
         </div>`,
         'Confirm Export'
       );
@@ -419,6 +389,24 @@ const AuditPage = () => {
         }
       });
 
+      // Fetch ALL records for export (no pagination limit)
+      const exportParams = new URLSearchParams({
+        page: '1',
+        limit: '10000', // Large limit to get all records
+      });
+
+      if (search) exportParams.append('search', search);
+      if (tableFilter) exportParams.append('entity_type', tableFilter);
+      if (actionFilter) exportParams.append('action_type_code', actionFilter);
+      if (dateFrom) exportParams.append('dateFrom', dateFrom);
+      if (dateTo) exportParams.append('dateTo', dateTo);
+
+      const exportResponse = await fetch(`${API_BASE_URL}/api/audit-logs?${exportParams.toString()}`);
+      if (!exportResponse.ok) throw new Error('Failed to fetch records for export');
+      
+      const exportResponseData = await exportResponse.json();
+      const allLogs = exportResponseData.data || exportResponseData.logs || [];
+
       // Get export ID
       const exportIdResponse = await fetch(`${API_BASE_URL}/api/generate-export-id`);
       if (!exportIdResponse.ok) throw new Error('Failed to generate export ID');
@@ -434,19 +422,19 @@ const AuditPage = () => {
           action: 'EXPORT',
           table_affected: 'AuditLog',
           record_id: exportId,
-          details: `Exported audit logs with filters - Date Range: ${dateFrom || 'Start'} to ${dateTo || 'End'}, Table: ${tableFilter || 'All'}, Action: ${actionFilter || 'All'}, Role: ${roleFilter || 'All'}, Department: ${departmentFilter || 'All'}, Search: ${search || 'None'}, Records: ${sortedLogs.length}`
+          details: `Exported audit logs with filters - Date Range: ${dateFrom || 'Start'} to ${dateTo || 'End'}, Table: ${tableFilter || 'All'}, Action: ${actionFilter || 'All'}, Role: ${roleFilter || 'All'}, Department: ${departmentFilter || 'All'}, Search: ${search || 'None'}, Records: ${allLogs.length}`
         }),
       });
 
       // Prepare data for export
-      const exportData = sortedLogs.map(log => ({
-        'Date & Time': formatDateTime(log.timestamp),
-        'Action': log.action,
-        'Table': log.table_affected,
-        'Record ID': log.record_id,
-        'Performed By': log.performed_by,
+      const exportData = allLogs.map((log: any) => ({
+        'Date & Time': formatDateTime(log.action_at || log.timestamp),
+        'Action': log.action_type_code || log.action,
+        'Table': log.entity_type || log.table_affected,
+        'Record ID': log.entity_id || log.record_id,
+        'Performed By': log.action_by || log.performed_by,
         'IP Address': log.ip_address || 'N/A',
-        'Details': log.details || 'N/A'
+        'Details': `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
       }));
 
       // Convert to CSV
@@ -470,7 +458,7 @@ const AuditPage = () => {
       document.body.removeChild(link);
 
       // Show success message
-      await showSuccess(`Successfully exported ${sortedLogs.length} records`, 'Export Complete!');
+      await showSuccess(`Successfully exported ${allLogs.length} records`, 'Export Complete!');
     } catch (error) {
       console.error('Export failed:', error);
       await showError('An error occurred while exporting the audit logs', 'Export Failed');
@@ -605,7 +593,7 @@ const AuditPage = () => {
             </thead>
             <tbody>{currentRecords.map((log, index) => (
               <tr key={log.log_id} onClick={() => setSelectedLog(log)}>
-                <td>{indexOfFirstRecord + index + 1}</td>
+                <td>{(currentPage - 1) * pageSize + index + 1}</td>
                 <td>{formatDateTime(log.timestamp)}</td>
                 <td>{log.action || 'N/A'}</td>
                 <td>{formatDisplayText(log.table_affected || '')}</td>

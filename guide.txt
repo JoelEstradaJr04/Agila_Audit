@@ -11,6 +11,15 @@ Run individually:
 Backend only: pnpm backend:dev
 Frontend only: pnpm frontend:dev
 
+# Port Configuration
+Frontend (Next.js): PORT=3000 (customizable in .env)
+Backend (Express): BACKEND_PORT=4004 (customizable in .env)
+
+To change ports, edit .env file:
+- PORT=3000 (frontend)
+- BACKEND_PORT=4004 (backend)
+- Update CORS_ORIGIN accordingly
+
 # Production Build
 npm run build
 
@@ -19,11 +28,14 @@ pnpm install
 npx prisma migrate dev --name AuditDB
 
 # Seed Database (TypeScript files are used)
-pnpm seed:actions    # Seed action types (CREATE, UPDATE, DELETE, etc.)
-# pnpm seed:apikeys   # Seed API keys for microservices (CURRENTLY BROKEN - apiKey model missing from schema)
-# pnpm seed:all       # Seed both action types and API keys (partially works)
+pnpm seed:actions      # Seed action types (CREATE, UPDATE, DELETE, etc.)
+pnpm seed:auditlogs    # Seed 60 sample audit log records for testing
+pnpm seed:all          # Seed both action types and audit logs (recommended)
 
-Note: Only seed:actions is fully functional. The apiKey seeder references a Prisma model that doesn't exist in the schema.
+Note: 
+- Run seed:actions first before seed:auditlogs (or use seed:all)
+- seed:all now includes 60+ audit log records for development/testing
+- API key seeder is excluded from seed:all (apiKey model doesn't exist in schema)
 
 # API Endpoints
 For SAVING Actions (src\routes\auditLogs.routes.ts):

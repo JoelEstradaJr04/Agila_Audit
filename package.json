@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm backend:dev\" \"pnpm frontend:dev\" --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\"",
-    "frontend:dev": "cross-env NODE_ENV=development node -r dotenv-safe/config node_modules/next/dist/bin/next dev --turbopack",
+    "frontend:dev": "node scripts/start-frontend.js",
     "setup": "pnpm install && pnpm prisma:generate && pnpm prisma:migrate && pnpm seed:apikeys",
     "build": "next build",
     "start": "next start",
@@ -19,7 +19,8 @@
     "backend:start": "node dist/index.js",
     "seed:apikeys": "ts-node --project tsconfig.server.json src/scripts/seedApiKeys.ts",
     "seed:actions": "ts-node --project tsconfig.server.json prisma/seedActionTypes.ts",
-    "seed:all": "pnpm seed:actions && pnpm seed:apikeys"
+    "seed:auditlogs": "ts-node --project tsconfig.server.json prisma/seedAuditLogs.ts",
+    "seed:all": "pnpm seed:actions && pnpm seed:auditlogs"
   },
   "dependencies": {
     "@prisma/client": "^5.15.0",
