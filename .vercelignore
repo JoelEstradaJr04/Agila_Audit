@@ -1,0 +1,12 @@
+# Exclude backend files from Vercel deployment
+src/
+dist/
+tsconfig.server.json
+
+# Exclude local development files
+.env
+.env.local
+*.log
+
+# Exclude documentation that's not needed for deployment
+docs/

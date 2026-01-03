@@ -27,9 +27,13 @@ const app: Application = express();
 app.use(helmet());
 
 // CORS configuration
+const corsOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : ['http://localhost:4003'];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4003',
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
