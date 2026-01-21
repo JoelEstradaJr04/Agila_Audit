@@ -9,6 +9,7 @@ import { showSuccess, showError, showConfirmation } from '@app/utils/Alerts';
 import { formatDisplayText } from '@/app/utils/formatting';
 import FilterDropdown, { FilterSection } from "@app/Components/filter";
 import { BackButton } from "@app/Components/backButton";
+import ExportButton from "@app/Components/ExportButton";
 
 // Backend API URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3002';
@@ -443,147 +444,27 @@ const AuditPage = () => {
   const currentRecords = auditLogs;
   const totalPages = Math.ceil(totalRecords / pageSize);
 
-  const handleExport = async () => {
-    try {
-      // Check if there are records to export
-      if (totalRecords === 0) {
-        const warningResult = await showConfirmation(
-          'No records found with the current filters. Do you want to proceed with exporting an empty dataset?',
-          'Warning'
-        );
-        if (!warningResult.isConfirmed) {
-          return;
-        }
-      }
+  // Prepare export data for the ExportButton component
+  const exportData = auditLogs.map(log => ({
+    date_time: formatDateTime(log.timestamp),
+    action: log.action || 'N/A',
+    table: formatDisplayText(log.table_affected || ''),
+    record_id: log.record_id || 'N/A',
+    performed_by: log.performed_by || 'N/A',
+    ip_address: log.ip_address || 'N/A',
+    details: log.details || 'N/A'
+  }));
 
-      // Show export confirmation with details - only show active filters
-      const activeFilters = [];
-      if (dateFrom || dateTo) {
-        activeFilters.push(`<p><strong>Date Range:</strong> ${dateFrom ? formatDateTime(dateFrom) : 'Start'} to ${dateTo ? formatDateTime(dateTo) : 'End'}</p>`);
-      }
-      if (tableFilter) {
-        activeFilters.push(`<p><strong>Table:</strong> ${tableFilter.split(',').join(', ')}</p>`);
-      }
-      if (actionFilter) {
-        activeFilters.push(`<p><strong>Action:</strong> ${actionFilter.split(',').join(', ')}</p>`);
-      }
-      if (search) {
-        activeFilters.push(`<p><strong>Search Term:</strong> ${search}</p>`);
-      }
-
-      const confirmResult = await showConfirmation(`
-        <div class="exportConfirmation">
-          ${activeFilters.length > 0 ? activeFilters.join('') : '<p><strong>Filters:</strong> None (All Records)</p>'}
-          <p><strong>Number of Records:</strong> ${totalRecords}</p>
-        </div>`,
-        'Confirm Export'
-      );
-
-      if (!confirmResult.isConfirmed) {
-        return;
-      }
-
-      // Show loading state
-      Swal.fire({
-        title: 'Exporting...',
-        text: 'Please wait while we prepare your export.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        allowEnterKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Fetch ALL records for export (no pagination limit)
-      const exportParams = new URLSearchParams({
-        page: '1',
-        limit: '10000', // Large limit to get all records
-      });
-
-      if (search) exportParams.append('search', search);
-      if (tableFilter) exportParams.append('entity_type', tableFilter);
-      if (actionFilter) exportParams.append('action_type_code', actionFilter);
-      if (dateFrom) exportParams.append('dateFrom', dateFrom);
-      if (dateTo) exportParams.append('dateTo', dateTo);
-      // Apply same sorting as current view (map frontend fields to backend fields)
-      if (sortField) {
-        const fieldMapping: Record<string, string> = {
-          'timestamp': 'action_at',
-          'action': 'action_type_code',
-          'table_affected': 'entity_type',
-          'record_id': 'entity_id',
-          'performed_by': 'action_by',
-          'ip_address': 'ip_address'
-        };
-        const backendSortField = fieldMapping[sortField] || sortField;
-        exportParams.append('sortBy', backendSortField);
-        exportParams.append('sortOrder', sortOrder);
-      }
-
-      const exportResponse = await fetch(`${API_BASE_URL}/api/audit-logs?${exportParams.toString()}`);
-      if (!exportResponse.ok) throw new Error('Failed to fetch records for export');
-      
-      const exportResponseData = await exportResponse.json();
-      const allLogs = exportResponseData.data || exportResponseData.logs || [];
-
-      // Get export ID
-      const exportIdResponse = await fetch(`${API_BASE_URL}/api/generate-export-id`);
-      if (!exportIdResponse.ok) throw new Error('Failed to generate export ID');
-      const { exportId } = await exportIdResponse.json();
-
-      // Create audit log for export action
-      await fetch(`${API_BASE_URL}/api/audit-logs/export`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'EXPORT',
-          table_affected: 'AuditLog',
-          record_id: exportId,
-          details: `Exported ${allLogs.length} audit logs${tableFilter ? ` | Table: ${tableFilter}` : ''}${actionFilter ? ` | Action: ${actionFilter}` : ''}${dateFrom || dateTo ? ` | Date: ${dateFrom || 'Start'} to ${dateTo || 'End'}` : ''}${search ? ` | Search: ${search}` : ''}`
-        }),
-      });
-
-      // Prepare data for export - includes ALL fields from View Modal
-      const exportData = allLogs.map((log: any) => ({
-        'Date & Time': formatDateTime(log.action_at || log.timestamp),
-        'Action': log.action_type_code || log.action || 'N/A',
-        'Table': formatDisplayText(log.entity_type || log.table_affected || ''),
-        'Record ID': log.entity_id || log.record_id || 'N/A',
-        'Performed By': log.action_by || log.performed_by || 'System',
-        'IP Address': log.ip_address || 'N/A',
-        'Details': log.details || `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
-      }));
-
-      // Convert to CSV
-      const headers = ['Date & Time', 'Action', 'Table', 'Record ID', 'Performed By', 'IP Address', 'Details'];
-      const csvContent = [
-        headers.join(','),
-        ...exportData.map((row: Record<string, string>) => 
-          headers.map(header => 
-            JSON.stringify(row[header] || '')
-          ).join(',')
-        )
-      ].join('\n');
-
-      // Create and trigger download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `audit_logs_${exportId}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Show success message
-      await showSuccess(`Successfully exported ${allLogs.length} records`, 'Export Complete!');
-    } catch (error) {
-      console.error('Export failed:', error);
-      await showError('An error occurred while exporting the audit logs', 'Export Failed');
-    }
-  };
+  // Column configuration for export
+  const exportColumns = [
+    { header: 'Date & Time', key: 'date_time' },
+    { header: 'Action', key: 'action' },
+    { header: 'Table', key: 'table' },
+    { header: 'Record ID', key: 'record_id' },
+    { header: 'Performed By', key: 'performed_by' },
+    { header: 'IP Address', key: 'ip_address' },
+    { header: 'Details', key: 'details' }
+  ];
 
   // Handle filter application - only includes filters that match table headers
   const handleFilterApply = (filterValues: Record<string, string | string[] | {from: string; to: string}>) => {
@@ -674,7 +555,12 @@ const AuditPage = () => {
           </div>
 
           <div className="filters">
-            <button onClick={handleExport} id="export"><i className="ri-receipt-line" /> Export Logs</button>
+            <ExportButton
+              data={exportData}
+              filename="audit_logs"
+              columns={exportColumns}
+              title="Audit Logs Export"
+            />
           </div>
         </div>
         <div className="table-wrapper">
