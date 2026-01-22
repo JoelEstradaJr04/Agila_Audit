@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import app from './app';
 import prisma from './prisma/client';
 
+import os from 'os';
+
 // Load environment variables
 dotenv.config();
 
@@ -16,27 +18,42 @@ dotenv.config();
 const PORT = process.env.BACKEND_PORT || process.env.PORT || 4001;
 const HOST = process.env.HOST || '0.0.0.0';
 
+// For display purposes, show localhost instead of 0.0.0.0 in development
+const DISPLAY_HOST = HOST === '0.0.0.0' ? 'localhost' : HOST;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// Get network IP address
+function getNetworkIP(): string {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
 // ============================================================================
 // START SERVER
 // ============================================================================
 
 async function startServer() {
   try {
-    // Test database connection
+    // Test database connection (silent in production)
     await prisma.$connect();
-    console.log('✅ Database connected successfully');
 
     // Start listening
     app.listen(Number(PORT), HOST, () => {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`🚀 Audit Logs Microservice`);
-      console.log(`📡 Server running at: http://${HOST}:${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`📊 Service: ${process.env.SERVICE_NAME || 'audit-logs-microservice'}`);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      const networkIP = getNetworkIP();
+      // Minimal startup message
+      console.log(`[BACKEND] Local:    http://${DISPLAY_HOST}:${PORT}`);
+      console.log(`[BACKEND] Network:  http://${networkIP}:${PORT}`);
+      console.log(`[BACKEND] Env:      .env`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('[Audit Service] Failed to start:', error);
     process.exit(1);
   }
 }
@@ -46,16 +63,13 @@ async function startServer() {
 // ============================================================================
 
 async function gracefulShutdown(signal: string) {
-  console.log(`\n${signal} received, shutting down gracefully...`);
+  console.log(`[Audit Service] ${signal} - shutting down...`);
   
   try {
-    // Disconnect database
     await prisma.$disconnect();
-    console.log('✅ Database disconnected');
-    
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error during shutdown:', error);
+    console.error('[Audit Service] Shutdown error:', error);
     process.exit(1);
   }
 }
@@ -66,12 +80,12 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught errors
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error('[Audit Service] Uncaught Exception:', error);
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+  console.error('[Audit Service] Unhandled Rejection:', reason);
   gracefulShutdown('UNHANDLED_REJECTION');
 });
 

@@ -544,42 +544,9 @@ const AuditPage = () => {
   }
 
   return (
-    <>
-      {/* Back Button */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        margin: 10,
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        fontSize: 28,
-        zIndex: 10,
-        paddingLeft: 30
-      }}>
-        <button
-          onClick={() => router.back()}
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 28,
-            zIndex: 10
-          }}
-          aria-label="Go back"
-        >
-          <i className="ri-arrow-left-long-line"></i>
-        </button>
-      </div>
-      <div className="card">
-        {/* <h1 className="title">Audit Logs</h1> */}
-        <div className="elements">
+    <div className="card">
+      {/* <h1 className="title">Audit Logs</h1> */}
+      <div className="elements">
         <h1 className="title">Audit Logs</h1>
         <div className="settings">
           <div className="search-filter-container">
@@ -701,8 +668,6 @@ const AuditPage = () => {
         )}
       </div>
     </div>
-    </>
-    </>
   );
 };
 

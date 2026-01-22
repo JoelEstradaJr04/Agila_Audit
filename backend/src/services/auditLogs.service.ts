@@ -67,6 +67,7 @@ export async function createAuditLog(
       entity_id: data.entity_id,
       action_type_id,
       action_by: data.action_by || null,
+      action_from: data.action_from || null,
       previous_data: data.previous_data || undefined,
       new_data: data.new_data || undefined,
       ip_address: data.ip_address || null,
@@ -87,39 +88,26 @@ export async function createAuditLog(
 
 /**
  * Build access filter based on user role
+ * Uses action_from field for department-based filtering
  */
 function buildAccessFilter(user: JWTUser): any {
   const role = user.role;
 
-  // SuperAdmin - No restrictions
+  // SuperAdmin - No restrictions (sees all audit logs)
   if (role === 'SuperAdmin') {
     return {};
   }
 
-  // Department Admin - Can see all logs from their department users
+  // Department Admin - Can see all logs from their department
+  // Uses action_from field which stores the department of action_by
   if (role.includes('Admin')) {
-    const department = role.split(' ')[0].toLowerCase();
-    
-    // Filter by action_by that starts with department code
-    // This assumes user IDs follow pattern: FIN-YYYYMMDD-XXX
-    const deptCodes: Record<string, string> = {
-      'finance': 'FIN',
-      'hr': 'HR',
-      'inventory': 'INV',
-      'operations': 'OPS',
+    const department = role.split(' ')[0]; // e.g., "Finance" from "Finance Admin"
+    return {
+      action_from: department,
     };
-
-    const deptCode = deptCodes[department];
-    if (deptCode) {
-      return {
-        action_by: {
-          startsWith: deptCode,
-        },
-      };
-    }
   }
 
-  // Regular user - Can only see their own logs
+  // Regular user (Staff) - Can only see their own logs
   return {
     action_by: user.id,
   };
@@ -205,6 +193,7 @@ export async function getAuditLogs(
       entity_id: true,
       action_type_id: true,    // Schema field
       action_by: true,
+      action_from: true,       // Department of action_by
       action_at: true,
       version: true,
       ip_address: true,        // Schema field
@@ -226,6 +215,7 @@ export async function getAuditLogs(
       action_type_id: log.action_type_id,    // Schema field
       action_type_code: log.action_type.code, // Computed for convenience
       action_by: log.action_by,
+      action_from: log.action_from,          // Department of action_by
       action_at: log.action_at,
       version: log.version,
       ip_address: log.ip_address,            // Schema field

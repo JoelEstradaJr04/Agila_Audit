@@ -12,39 +12,33 @@ import {
 } from '../utils/validation.util';
 
 /**
- * Apply access filter based on user role (deprecated - moved to service layer)
- * This function is kept for backward compatibility
+ * Apply access filter based on user role
+ * Uses action_from field for department-based filtering
+ * @deprecated Use buildAccessFilter in service layer instead
  */
 export function applyAccessFilter(
   user: { id: string; username: string; role: string },
   serviceName?: string
 ): any {
-  // SuperAdmin - No restrictions
+  // SuperAdmin - No restrictions (sees all audit logs)
   if (isSuperAdmin(user.role)) {
     return {};
   }
 
-  // Department Admin - Can see all logs from their department users
+  // Department Admin - Can see all logs from their department
+  // Uses action_from field which stores the department of action_by
   if (isDepartmentAdmin(user.role)) {
     const department = extractDepartmentFromRole(user.role);
-    const deptCodes: Record<string, string> = {
-      'finance': 'FIN',
-      'hr': 'HR',
-      'inventory': 'INV',
-      'operations': 'OPS',
-    };
-
-    const deptCode = deptCodes[department || ''];
-    if (deptCode) {
+    if (department) {
+      // Capitalize first letter to match format: "Finance", "HR", etc.
+      const formattedDept = department.charAt(0).toUpperCase() + department.slice(1);
       return {
-        action_by: {
-          startsWith: deptCode,
-        },
+        action_from: formattedDept,
       };
     }
   }
 
-  // Non-Admin - Can only see their own logs
+  // Regular user (Staff) - Can only see their own logs
   return {
     action_by: user.id,
   };
