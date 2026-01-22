@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import '@app/styles/Components/table.css';
+import '@app/styles/components/table.css';
 import "@app/styles/audit/audit.css";
 import PaginationComponent from "@app/Components/pagination";
 import Swal from "sweetalert2";
