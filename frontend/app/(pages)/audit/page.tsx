@@ -23,6 +23,7 @@ type AuditLog = {
   action_type_id: number;
   action_type_code: string;
   action_by: string | null;
+  action_from: string | null;
   action_at: string;
   previous_data?: any | null;
   new_data?: any | null;
@@ -35,6 +36,7 @@ type AuditLog = {
   table_affected?: string;
   record_id?: string;
   performed_by?: string;
+  department?: string;
   timestamp?: string;
   details?: string;
 };
@@ -149,7 +151,14 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
                   </div>
                 </div>
                 <div className="audit-detail-row">
-                  <div className="audit-detail-icon">🌐</div>
+                  <div className="audit-detail-icon">�</div>
+                  <div className="audit-detail-content">
+                    <div className="audit-detail-label">Department</div>
+                    <div className="audit-detail-value">{log.department || log.action_from || 'N/A'}</div>
+                  </div>
+                </div>
+                <div className="audit-detail-row">
+                  <div className="audit-detail-icon">�🌐</div>
                   <div className="audit-detail-content">
                     <div className="audit-detail-label">IP Address</div>
                     <div className="audit-detail-value">
@@ -301,6 +310,7 @@ const AuditPage = () => {
         action_type_id: log.action_type_id,
         action_type_code: log.action_type?.code || 'UNKNOWN',
         action_by: log.action_by,
+        action_from: log.action_from,
         action_at: log.action_at,
         previous_data: log.previous_data,
         new_data: log.new_data,
@@ -313,6 +323,7 @@ const AuditPage = () => {
         table_affected: log.entity_type,
         record_id: log.entity_id,
         performed_by: log.action_by || 'System',
+        department: log.action_from || 'N/A',
         timestamp: log.action_at,
         // Use backend-generated details with full data context
         details: log.details || `Version ${log.version} - ${log.action_type?.code} on ${log.entity_type}`
@@ -353,6 +364,8 @@ const AuditPage = () => {
           'table_affected': 'entity_type',
           'record_id': 'entity_id',
           'performed_by': 'action_by',
+          'action_from': 'action_from',
+          'department': 'action_from',
           'ip_address': 'ip_address'
         };
         const backendSortField = fieldMapping[sortField] || sortField;
@@ -395,6 +408,7 @@ const AuditPage = () => {
         action_type_id: log.action_type_id,
         action_type_code: log.action_type_code,
         action_by: log.action_by,
+        action_from: log.action_from,
         action_at: log.action_at,
         version: log.version,
         ip_address: log.ip_address,
@@ -405,6 +419,7 @@ const AuditPage = () => {
         table_affected: log.entity_type,
         record_id: log.entity_id,
         performed_by: log.action_by || 'System',
+        department: log.action_from || 'N/A',
         timestamp: log.action_at,
         // Use backend-generated details (single source of truth)
         details: log.details || `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
@@ -453,6 +468,7 @@ const AuditPage = () => {
     table: formatDisplayText(log.table_affected || ''),
     record_id: log.record_id || 'N/A',
     performed_by: log.performed_by || 'N/A',
+    department: log.department || log.action_from || 'N/A',
     ip_address: log.ip_address || 'N/A',
     details: log.details || 'N/A'
   }));
@@ -464,6 +480,7 @@ const AuditPage = () => {
     { header: 'Table', key: 'table' },
     { header: 'Record ID', key: 'record_id' },
     { header: 'Performed By', key: 'performed_by' },
+    { header: 'Department', key: 'department' },
     { header: 'IP Address', key: 'ip_address' },
     { header: 'Details', key: 'details' }
   ];
@@ -623,6 +640,12 @@ const AuditPage = () => {
                     <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
                   )}
                 </th>
+                <th onClick={() => handleSort('action_from')} className="sortable">
+                  Department
+                  {sortField === 'action_from' && (
+                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                  )}
+                </th>
                 <th onClick={() => handleSort('ip_address')} className="sortable">
                   IP Address
                   {sortField === 'ip_address' && (
@@ -644,6 +667,7 @@ const AuditPage = () => {
                 <td>{formatDisplayText(log.table_affected || '')}</td>
                 <td>{log.record_id || 'N/A'}</td>
                 <td>{log.performed_by || 'N/A'}</td>
+                <td>{log.department || log.action_from || 'N/A'}</td>
                 <td>{log.ip_address || 'N/A'}</td>
               </tr>
             ))}</tbody></table>
