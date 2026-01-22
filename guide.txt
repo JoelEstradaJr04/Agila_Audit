@@ -10,7 +10,7 @@ cp backend/.env.example backend/.env
 # Edit both .env files
 
 # 3. Setup database
-cd backend ; pnpm prisma:generate ; pnpm prisma:migrate dev --name final_audit_db ; pnpm seed:all
+cd backend ; pnpm prisma:generate ; pnpm prisma:migrate dev ; pnpm seed:all
 cd ..
 
 # 4. Run both apps
