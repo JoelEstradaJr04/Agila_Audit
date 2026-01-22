@@ -17,6 +17,10 @@ import auditLogsRoutes from './routes/auditLogs.routes';
 
 const app: Application = express();
 
+// Trust proxy - required for correct protocol detection behind Railway/reverse proxies
+// This ensures req.protocol returns 'https' when behind a proxy that terminates SSL
+app.set('trust proxy', true);
+
 // Validate Swagger specification on startup (if enabled)
 if (config.enableApiDocs) {
   validateSwaggerSpec();
