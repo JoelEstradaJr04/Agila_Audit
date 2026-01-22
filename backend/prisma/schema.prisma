@@ -34,6 +34,7 @@ entity_type     String
 entity_id       String
 action_type_id  Int       // FK → action_type
 action_by       String?
+action_from     String?   // department of action_by
 action_at       DateTime  @default(now())
 previous_data   Json?     // Used by: UPDATE (required), DELETE (required). Must NOT be used for CREATE, EXPORT, IMPORT, LOGIN, LOGOUT
 new_data        Json?     // Used by: CREATE (required), UPDATE (required). Must NOT be used for DELETE, EXPORT, IMPORT, LOGIN, LOGOUT

@@ -1,15 +1,16 @@
 #!/usr/bin/env node
+// Suppress dotenv/dotenvx console messages
+process.env.DOTENV_CONFIG_SILENT = 'true';
+
 require('dotenv').config();
 const { spawn } = require('child_process');
 
 const port = process.env.PORT || 3000;
 
-console.log(`Starting Next.js on port ${port}...`);
-
 const child = spawn('next', ['dev', '-p', port, '--turbopack'], {
   stdio: 'inherit',
   shell: true,
-  env: { ...process.env, NODE_ENV: 'development' }
+  env: { ...process.env, NODE_ENV: 'development', DOTENV_CONFIG_SILENT: 'true' }
 });
 
 child.on('exit', (code) => {

@@ -53,6 +53,7 @@ async function seedAuditLogs() {
       entity_id: 'EXP-1001',
       action_type: { connect: { id: createAction.id } },
       action_by: 'john.doe@company.com',
+      action_from: 'Finance',
       action_at: new Date(baseDate.getTime()),
       // previous_data omitted - CREATE never uses it
       new_data: {
@@ -74,6 +75,7 @@ async function seedAuditLogs() {
       entity_id: 'EXP-1001', // Same entity as CREATE to show version increment
       action_type: { connect: { id: updateAction.id } },
       action_by: 'jane.smith@company.com',
+      action_from: 'Finance',
       action_at: new Date(baseDate.getTime() + 3600000), // +1 hour
       previous_data: {
         amount: 1500,
@@ -97,6 +99,7 @@ async function seedAuditLogs() {
       entity_id: 'EXP-1002',
       action_type: { connect: { id: deleteAction.id } },
       action_by: 'admin@company.com',
+      action_from: 'Operations',
       action_at: new Date(baseDate.getTime() + 7200000), // +2 hours
       previous_data: {
         amount: 2500,
@@ -119,6 +122,7 @@ async function seedAuditLogs() {
       entity_id: 'EXPORT-20260105-001',
       action_type: { connect: { id: exportAction.id } },
       action_by: 'finance.manager@company.com',
+      action_from: 'Finance',
       action_at: new Date(baseDate.getTime() + 10800000), // +3 hours
       // previous_data and new_data omitted - EXPORT doesn't track data changes
       version: 1,
@@ -134,6 +138,7 @@ async function seedAuditLogs() {
       entity_id: 'IMPORT-20260105-001',
       action_type: { connect: { id: importAction.id } },
       action_by: 'system',
+      action_from: 'Operations',
       action_at: new Date(baseDate.getTime() + 14400000), // +4 hours
       // previous_data and new_data omitted - IMPORT doesn't track data changes
       version: 1,
@@ -148,6 +153,7 @@ async function seedAuditLogs() {
       entity_id: 'SESSION-john.doe-1735988400000',
       action_type: { connect: { id: loginAction.id } },
       action_by: 'john.doe@company.com',
+      action_from: 'Human Resources',
       action_at: new Date(baseDate.getTime() + 18000000), // +5 hours
       // previous_data and new_data omitted - LOGIN doesn't track data changes
       version: 1,
@@ -162,6 +168,7 @@ async function seedAuditLogs() {
       entity_id: 'SESSION-john.doe-1735988400000',
       action_type: { connect: { id: logoutAction.id } },
       action_by: 'john.doe@company.com',
+      action_from: 'Human Resources',
       action_at: new Date(baseDate.getTime() + 36000000), // +10 hours
       // previous_data and new_data omitted - LOGOUT doesn't track data changes
       version: 2, // Version 2 since it's a follow-up action on the same session
@@ -176,6 +183,7 @@ async function seedAuditLogs() {
       entity_id: 'EXP-1003',
       action_type: { connect: { id: archiveAction.id } },
       action_by: 'finance.manager@company.com',
+      action_from: 'Inventory',
       action_at: new Date(baseDate.getTime() + 21600000), // +6 hours
       new_data: {
         status: 'archived',
@@ -196,6 +204,7 @@ async function seedAuditLogs() {
       entity_id: 'EXP-1003',
       action_type: { connect: { id: unarchiveAction.id } },
       action_by: 'finance.manager@company.com',
+      action_from: 'Inventory',
       action_at: new Date(baseDate.getTime() + 25200000), // +7 hours
       new_data: {
         status: 'active',

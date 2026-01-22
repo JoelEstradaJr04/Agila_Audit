@@ -8,15 +8,19 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler.middleware';
 import { apiRateLimiter } from './middlewares/rateLimit.middleware';
+import { setupSwagger, addDocsInfoToHealth, validateSwaggerSpec } from './middlewares/swagger.middleware';
+import { config } from './config/env';
 
 // Import routes
-import superAdminRoutes from './routes/super_admin.routes';
-import departmentAdminRoutes from './routes/department_admin.routes';
-import userRoutes from './routes/user.routes';
 import apiKeysRoutes from './routes/apiKeys.routes';
 import auditLogsRoutes from './routes/auditLogs.routes';
 
 const app: Application = express();
+
+// Validate Swagger specification on startup (if enabled)
+if (config.enableApiDocs) {
+  validateSwaggerSpec();
+}
 
 // ============================================================================
 // MIDDLEWARE CONFIGURATION
@@ -54,32 +58,44 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api', apiRateLimiter);
 
 // ============================================================================
+// SWAGGER/OPENAPI DOCUMENTATION
+// ============================================================================
+
+// Setup Swagger/OpenAPI documentation (if enabled)
+setupSwagger(app);
+
+// ============================================================================
 // HEALTH CHECK
 // ============================================================================
 
-app.get('/health', (req, res) => {
-  res.json({
+app.get('/health', addDocsInfoToHealth, (req, res) => {
+  const response: any = {
     success: true,
-    service: process.env.SERVICE_NAME || 'audit-logs-microservice',
+    service: config.serviceName,
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-  });
+    environment: config.nodeEnv,
+  };
+
+  // Add API documentation links if enabled
+  if (res.locals.docsInfo?.enabled) {
+    response.documentation = {
+      swagger_ui: res.locals.docsInfo.path,
+      openapi_spec: res.locals.docsInfo.openApiSpec,
+    };
+  }
+
+  res.json(response);
 });
 
 // ============================================================================
 // API ROUTES
 // ============================================================================
 
-// Generic audit logs routes (with authentication)
+// Unified audit logs routes (with role-based filtering)
 app.use('/api/audit-logs', auditLogsRoutes);
 
-// Role-based audit log routes
-app.use('/api/super-admin', superAdminRoutes);
-app.use('/api/department-admin', departmentAdminRoutes);
-app.use('/api/user', userRoutes);
-
-// Other routes
+// API keys management (SuperAdmin only)
 app.use('/api/keys', apiKeysRoutes);
 
 // ============================================================================

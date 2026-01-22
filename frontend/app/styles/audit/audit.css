@@ -33,22 +33,6 @@
   height: var(--search-input-height) !important;
 }
 
-.settings .filters button {
-  font-size: var(--page-button-font-size) !important;
-  cursor: pointer !important;
-  border-radius: 5px !important;
-  border: none !important;
-  background-color: var(--secondary-color) !important;
-  color: var(--button-font-color) !important;
-  transition: background-color 0.2s !important;
-  box-shadow: var(--box-shadow) !important;
-  width: 125px !important;
-  height: var(--search-input-height) !important;
-}
-.settings .filters button:hover {
-  background-color: var(--secondary-hover-color) !important;
-}
-
 
 .searchBar {
   display: flex !important;
@@ -100,23 +84,6 @@
   max-width: max-content !important;
 }
 
-/* ---------- Import / Export ---------- */
- #export{
-  height: var(--page-button-height) !important;
-  width: var(--page-button-width) !important;
-  font-size: var(--page-button-font-size) !important;
-  border-radius: var(--page-button-border-radius)!important;
-  cursor: pointer !important;
-  border: none !important;
-  background-color: var(--secondary-color) !important;
-  color: var(--button-font-color) !important;
-  transition: background-color 0.3s !important;
-}
-
- #export:hover {
-  background-color: var(--secondary-hover-color)!important;
-}
-
 /* ---------- View Button (table) ---------- */
 .viewButton {
   background-color: var(--info-color) !important;
@@ -130,18 +97,6 @@
 .viewButton:hover {
   background-color: var(--info-hover-color) !important;
 }
-
-/* ---------- Export Button (separate action) ---------- */
-.exportButton {
-  color: var(--button-font-color) !important;
-  border: none !important;
-  padding: 8px 16px !important;
-  border-radius: 4px !important;
-  cursor: pointer !important;
-  font-weight: 500 !important;
-  transition: background-color 0.2s !important;
-}
-
 /* ---------- View Details Modal ---------- */
 .modalOverlay {
   position: fixed !important;
@@ -352,10 +307,6 @@
   .filters input[type="date"],
   .filters select {
     width: 100% !important;
-  }
-
-  .importExport {
-    justify-content: space-between !important;
   }
 
   .viewDetailsModal {

@@ -38,6 +38,7 @@ export interface CreateAuditLogDTO {
   entity_id: string;          // ID of the entity being logged
   action_type_code: string;   // Code from action_type table (CREATE, UPDATE, DELETE, etc.)
   action_by?: string;         // User ID who performed the action
+  action_from?: string;       // Department of the user who performed the action
   previous_data?: object;     // Previous state (only changed fields)
   new_data?: object;          // New state (only changed fields)
   ip_address?: string;        // IP address of the request
@@ -65,6 +66,7 @@ export interface AuditLogResponse {
     code: string;
   };
   action_by: string | null;
+  action_from: string | null;    // Department of action_by
   action_at: Date;
   previous_data: any;
   new_data: any;
@@ -82,6 +84,7 @@ export interface AuditLogBriefResponse {
   action_type_id: number;        // From schema
   action_type_code: string;      // Computed from join
   action_by: string | null;
+  action_from: string | null;    // Department of action_by
   action_at: Date;
   version: number;
   ip_address: string | null;     // From schema

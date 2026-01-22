@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import '@app/styles/Components/table.css';
+import '@app/styles/components/table.css';
 import "@app/styles/audit/audit.css";
 import PaginationComponent from "@app/Components/pagination";
 import Swal from "sweetalert2";
@@ -9,6 +9,8 @@ import Loading from '@app/Components/loading';
 import { showSuccess, showError, showConfirmation } from '@app/utils/Alerts';
 import { formatDisplayText } from '@/app/utils/formatting';
 import FilterDropdown, { FilterSection } from "@app/Components/filter";
+import { BackButton } from "@app/Components/backButton";
+import ExportButton from "@app/Components/ExportButton";
 
 // Backend API URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3002';
@@ -21,6 +23,7 @@ type AuditLog = {
   action_type_id: number;
   action_type_code: string;
   action_by: string | null;
+  action_from: string | null;
   action_at: string;
   previous_data?: any | null;
   new_data?: any | null;
@@ -33,6 +36,7 @@ type AuditLog = {
   table_affected?: string;
   record_id?: string;
   performed_by?: string;
+  department?: string;
   timestamp?: string;
   details?: string;
 };
@@ -147,7 +151,14 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
                   </div>
                 </div>
                 <div className="audit-detail-row">
-                  <div className="audit-detail-icon">🌐</div>
+                  <div className="audit-detail-icon">�</div>
+                  <div className="audit-detail-content">
+                    <div className="audit-detail-label">Department</div>
+                    <div className="audit-detail-value">{log.department || log.action_from || 'N/A'}</div>
+                  </div>
+                </div>
+                <div className="audit-detail-row">
+                  <div className="audit-detail-icon">�🌐</div>
                   <div className="audit-detail-content">
                     <div className="audit-detail-label">IP Address</div>
                     <div className="audit-detail-value">
@@ -183,11 +194,10 @@ const AuditPage = () => {
   const router = useRouter();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // Input field value
+  const [search, setSearch] = useState(""); // Applied search filter (triggers fetch)
   const [tableFilter, setTableFilter] = useState("");
   const [actionFilter, setActionFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -196,11 +206,31 @@ const AuditPage = () => {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [selectedLogDetails, setSelectedLogDetails] = useState<AuditLog | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [sortField, setSortField] = useState<keyof AuditLog | null>(null);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  // Default sorting: newest first (descending by timestamp)
+  const [sortField, setSortField] = useState<keyof AuditLog | null>('timestamp');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  // Handle search submission (Enter key or button click)
+  const handleSearchSubmit = () => {
+    setSearch(searchInput.trim());
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
-  // Available actions for filtering
+  // Handle Enter key press in search input
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit();
+    }
+  };
+
+  // Clear search
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearch("");
+    setCurrentPage(1);
+  };
+
+  // Available actions for filtering (matches Action column in table)
   const availableActions = [
     { id: 'CREATE', label: 'Create' },
     { id: 'UPDATE', label: 'Update' },
@@ -213,21 +243,19 @@ const AuditPage = () => {
     { id: 'LOGOUT', label: 'Logout' }
   ];
 
-  // Available roles for filtering
-  const availableRoles = [
-    { id: 'admin', label: 'Admin' },
-    { id: 'staff', label: 'Staff' }
+  // Available tables for filtering (matches Table column in table)
+  const availableTables = [
+    { id: 'ExpenseRecord', label: 'Expense Record' },
+    { id: 'RevenueRecord', label: 'Revenue Record' },
+    { id: 'Receipt', label: 'Receipt' },
+    { id: 'Reimbursement', label: 'Reimbursement' },
+    { id: 'Asset', label: 'Asset' },
+    { id: 'Budget', label: 'Budget' },
+    { id: 'JournalEntry', label: 'Journal Entry' },
+    { id: 'AuditLog', label: 'Audit Log' },
   ];
 
-  // Available departments for filtering
-  const availableDepartments = [
-    { id: 'Finance', label: 'Finance' },
-    { id: 'HR', label: 'Human Resources' },
-    { id: 'Operations', label: 'Operations' },
-    { id: 'Inventory', label: 'Inventory' },
-  ];
-
-  // Filter sections configuration
+  // Filter sections configuration - only includes fields that match table headers
   const filterSections: FilterSection[] = [
     {
       id: 'dateRange',
@@ -242,16 +270,10 @@ const AuditPage = () => {
       options: availableActions
     },
     {
-      id: 'role',
-      title: 'User Role',
+      id: 'table',
+      title: 'Table',
       type: 'checkbox',
-      options: availableRoles
-    },
-    {
-      id: 'department',
-      title: 'Department',
-      type: 'checkbox',
-      options: availableDepartments
+      options: availableTables
     }
   ];
 
@@ -288,6 +310,7 @@ const AuditPage = () => {
         action_type_id: log.action_type_id,
         action_type_code: log.action_type?.code || 'UNKNOWN',
         action_by: log.action_by,
+        action_from: log.action_from,
         action_at: log.action_at,
         previous_data: log.previous_data,
         new_data: log.new_data,
@@ -300,6 +323,7 @@ const AuditPage = () => {
         table_affected: log.entity_type,
         record_id: log.entity_id,
         performed_by: log.action_by || 'System',
+        department: log.action_from || 'N/A',
         timestamp: log.action_at,
         // Use backend-generated details with full data context
         details: log.details || `Version ${log.version} - ${log.action_type?.code} on ${log.entity_type}`
@@ -331,8 +355,21 @@ const AuditPage = () => {
       if (actionFilter) params.append('action_type_code', actionFilter);
       if (dateFrom) params.append('dateFrom', dateFrom);
       if (dateTo) params.append('dateTo', dateTo);
+      
+      // Map frontend field names to backend field names for sorting
       if (sortField) {
-        params.append('sortBy', sortField);
+        const fieldMapping: Record<string, string> = {
+          'timestamp': 'action_at',
+          'action': 'action_type_code',
+          'table_affected': 'entity_type',
+          'record_id': 'entity_id',
+          'performed_by': 'action_by',
+          'action_from': 'action_from',
+          'department': 'action_from',
+          'ip_address': 'ip_address'
+        };
+        const backendSortField = fieldMapping[sortField] || sortField;
+        params.append('sortBy', backendSortField);
         params.append('sortOrder', sortOrder);
       }
 
@@ -371,6 +408,7 @@ const AuditPage = () => {
         action_type_id: log.action_type_id,
         action_type_code: log.action_type_code,
         action_by: log.action_by,
+        action_from: log.action_from,
         action_at: log.action_at,
         version: log.version,
         ip_address: log.ip_address,
@@ -381,6 +419,7 @@ const AuditPage = () => {
         table_affected: log.entity_type,
         record_id: log.entity_id,
         performed_by: log.action_by || 'System',
+        department: log.action_from || 'N/A',
         timestamp: log.action_at,
         // Use backend-generated details (single source of truth)
         details: log.details || `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
@@ -422,164 +461,57 @@ const AuditPage = () => {
   const currentRecords = auditLogs;
   const totalPages = Math.ceil(totalRecords / pageSize);
 
-  const handleExport = async () => {
-    try {
-      // Check if there are records to export
-      if (totalRecords === 0) {
-        const warningResult = await showConfirmation(
-          'No records found with the current filters. Do you want to proceed with exporting an empty dataset?',
-          'Warning'
-        );
-        if (!warningResult.isConfirmed) {
-          return;
-        }
-      }
+  // Prepare export data for the ExportButton component
+  const exportData = auditLogs.map(log => ({
+    date_time: formatDateTime(log.timestamp),
+    action: log.action || 'N/A',
+    table: formatDisplayText(log.table_affected || ''),
+    record_id: log.record_id || 'N/A',
+    performed_by: log.performed_by || 'N/A',
+    department: log.department || log.action_from || 'N/A',
+    ip_address: log.ip_address || 'N/A',
+    details: log.details || 'N/A'
+  }));
 
-      // Show export confirmation with details
-      const confirmResult = await showConfirmation(`
-        <div class="exportConfirmation">
-          <p><strong>Date Range:</strong> ${dateFrom ? formatDateTime(dateFrom) : 'Start'} to ${dateTo ? formatDateTime(dateTo) : 'End'}</p>
-          <p><strong>Table Filter:</strong> ${tableFilter || 'All Tables'}</p>
-          <p><strong>Action Filter:</strong> ${actionFilter || 'All Actions'}</p>
-          <p><strong>Role Filter:</strong> ${roleFilter || 'All Roles'}</p>
-          <p><strong>Department Filter:</strong> ${departmentFilter || 'All Departments'}</p>
-          <p><strong>Search Term:</strong> ${search || 'None'}</p>
-          <p><strong>Number of Records:</strong> ${totalRecords}</p>
-        </div>`,
-        'Confirm Export'
-      );
+  // Column configuration for export
+  const exportColumns = [
+    { header: 'Date & Time', key: 'date_time' },
+    { header: 'Action', key: 'action' },
+    { header: 'Table', key: 'table' },
+    { header: 'Record ID', key: 'record_id' },
+    { header: 'Performed By', key: 'performed_by' },
+    { header: 'Department', key: 'department' },
+    { header: 'IP Address', key: 'ip_address' },
+    { header: 'Details', key: 'details' }
+  ];
 
-      if (!confirmResult.isConfirmed) {
-        return;
-      }
-
-      // Show loading state
-      Swal.fire({
-        title: 'Exporting...',
-        text: 'Please wait while we prepare your export.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        allowEnterKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Fetch ALL records for export (no pagination limit)
-      const exportParams = new URLSearchParams({
-        page: '1',
-        limit: '10000', // Large limit to get all records
-      });
-
-      if (search) exportParams.append('search', search);
-      if (tableFilter) exportParams.append('entity_type', tableFilter);
-      if (actionFilter) exportParams.append('action_type_code', actionFilter);
-      if (dateFrom) exportParams.append('dateFrom', dateFrom);
-      if (dateTo) exportParams.append('dateTo', dateTo);
-
-      const exportResponse = await fetch(`${API_BASE_URL}/api/audit-logs?${exportParams.toString()}`);
-      if (!exportResponse.ok) throw new Error('Failed to fetch records for export');
-      
-      const exportResponseData = await exportResponse.json();
-      const allLogs = exportResponseData.data || exportResponseData.logs || [];
-
-      // Get export ID
-      const exportIdResponse = await fetch(`${API_BASE_URL}/api/generate-export-id`);
-      if (!exportIdResponse.ok) throw new Error('Failed to generate export ID');
-      const { exportId } = await exportIdResponse.json();
-
-      // Create audit log for export action
-      await fetch(`${API_BASE_URL}/api/audit-logs/export`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'EXPORT',
-          table_affected: 'AuditLog',
-          record_id: exportId,
-          details: `Exported audit logs with filters - Date Range: ${dateFrom || 'Start'} to ${dateTo || 'End'}, Table: ${tableFilter || 'All'}, Action: ${actionFilter || 'All'}, Role: ${roleFilter || 'All'}, Department: ${departmentFilter || 'All'}, Search: ${search || 'None'}, Records: ${allLogs.length}`
-        }),
-      });
-
-      // Prepare data for export
-      const exportData = allLogs.map((log: any) => ({
-        'Date & Time': formatDateTime(log.action_at || log.timestamp),
-        'Action': log.action_type_code || log.action,
-        'Table': log.entity_type || log.table_affected,
-        'Record ID': log.entity_id || log.record_id,
-        'Performed By': log.action_by || log.performed_by,
-        'IP Address': log.ip_address || 'N/A',
-        // Use backend-generated details (single source of truth)
-        'Details': log.details || `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
-      }));
-
-      // Convert to CSV
-      const headers = ['Date & Time', 'Action', 'Table', 'Record ID', 'Performed By', 'IP Address', 'Details'];
-      const csvContent = [
-        headers.join(','),
-        ...exportData.map((row: Record<string, string>) => 
-          headers.map(header => 
-            JSON.stringify(row[header] || '')
-          ).join(',')
-        )
-      ].join('\n');
-
-      // Create and trigger download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `audit_logs_${exportId}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Show success message
-      await showSuccess(`Successfully exported ${allLogs.length} records`, 'Export Complete!');
-    } catch (error) {
-      console.error('Export failed:', error);
-      await showError('An error occurred while exporting the audit logs', 'Export Failed');
-    }
-  };
-
-  // Handle filter application
+  // Handle filter application - only includes filters that match table headers
   const handleFilterApply = (filterValues: Record<string, string | string[] | {from: string; to: string}>) => {
-    // Date range filter
+    // Date range filter (matches Date & Time column)
     if (filterValues.dateRange && typeof filterValues.dateRange === 'object') {
       const dateRange = filterValues.dateRange as { from: string; to: string };
       setDateFrom(dateRange.from);
       setDateTo(dateRange.to);
+    } else {
+      setDateFrom('');
+      setDateTo('');
     }
     
-    // Table filter (multiple selection support)
-    if (filterValues.table && Array.isArray(filterValues.table)) {
+    // Table filter (matches Table column)
+    if (filterValues.table && Array.isArray(filterValues.table) && filterValues.table.length > 0) {
       setTableFilter(filterValues.table.join(','));
     } else {
       setTableFilter('');
     }
 
-    // Action filter
-    if (filterValues.action && Array.isArray(filterValues.action)) {
+    // Action filter (matches Action column)
+    if (filterValues.action && Array.isArray(filterValues.action) && filterValues.action.length > 0) {
       setActionFilter(filterValues.action.join(','));
     } else {
       setActionFilter('');
     }
 
-    // Role filter
-    if (filterValues.role && Array.isArray(filterValues.role)) {
-      setRoleFilter(filterValues.role.join(','));
-    } else {
-      setRoleFilter('');
-    }
-
-    // Department filter
-    if (filterValues.department && Array.isArray(filterValues.department)) {
-      setDepartmentFilter(filterValues.department.join(','));
-    } else {
-      setDepartmentFilter('');
-    }
-
-    // Reset pagination page
+    // Reset pagination page when filters change
     setCurrentPage(1);
   };
 
@@ -629,53 +561,28 @@ const AuditPage = () => {
   }
 
   return (
-    <>
-      {/* Back Button */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        margin: 10,
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        fontSize: 28,
-        zIndex: 10,
-        paddingLeft: 30
-      }}>
-        <button
-          onClick={() => router.back()}
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 28,
-            zIndex: 10
-          }}
-          aria-label="Go back"
-        >
-          <i className="ri-arrow-left-long-line"></i>
-        </button>
-      </div>
-      <div className="card">
-        {/* <h1 className="title">Audit Logs</h1> */}
-        <div className="elements">
+    <div className="card">
+      {/* <h1 className="title">Audit Logs</h1> */}
+      <div className="elements">
         <h1 className="title">Audit Logs</h1>
         <div className="settings">
           <div className="search-filter-container">
             <div className="searchBar">
-              <i className="ri-search-line" />
+              <i className="ri-search-line" onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />
               <input
                 type="text"
-                placeholder="  Search logs..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              /> 
+                placeholder="  Search by Action, Table, Record ID, Performed By... (Press Enter)"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+              />
+              {searchInput && (
+                <i 
+                  className="ri-close-line" 
+                  onClick={handleClearSearch} 
+                  style={{ cursor: 'pointer', marginLeft: '8px' }} 
+                />
+              )}
             </div>
             <FilterDropdown
               sections={filterSections}
@@ -683,14 +590,18 @@ const AuditPage = () => {
               initialValues={{
                 dateRange: { from: dateFrom, to: dateTo },
                 action: actionFilter ? actionFilter.split(',') : [],
-                role: roleFilter ? roleFilter.split(',') : [],
-                department: departmentFilter ? departmentFilter.split(',') : []
+                table: tableFilter ? tableFilter.split(',') : []
               }}
             />
           </div>
 
           <div className="filters">
-            <button onClick={handleExport} id="export"><i className="ri-receipt-line" /> Export Logs</button>
+            <ExportButton
+              data={exportData}
+              filename="audit_logs"
+              columns={exportColumns}
+              title="Audit Logs Export"
+            />
           </div>
         </div>
         <div className="table-wrapper">
@@ -729,6 +640,12 @@ const AuditPage = () => {
                     <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
                   )}
                 </th>
+                <th onClick={() => handleSort('action_from')} className="sortable">
+                  Department
+                  {sortField === 'action_from' && (
+                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                  )}
+                </th>
                 <th onClick={() => handleSort('ip_address')} className="sortable">
                   IP Address
                   {sortField === 'ip_address' && (
@@ -750,6 +667,7 @@ const AuditPage = () => {
                 <td>{formatDisplayText(log.table_affected || '')}</td>
                 <td>{log.record_id || 'N/A'}</td>
                 <td>{log.performed_by || 'N/A'}</td>
+                <td>{log.department || log.action_from || 'N/A'}</td>
                 <td>{log.ip_address || 'N/A'}</td>
               </tr>
             ))}</tbody></table>
@@ -774,7 +692,6 @@ const AuditPage = () => {
         )}
       </div>
     </div>
-    </>
   );
 };
 

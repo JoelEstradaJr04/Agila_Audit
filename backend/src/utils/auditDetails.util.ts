@@ -325,6 +325,7 @@ export function buildBriefAuditDetails(
       code: action_type_code,
     },
     action_by,
+    action_from: null,
     action_at,
     previous_data: null,
     new_data: null,
