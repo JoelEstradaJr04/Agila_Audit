@@ -16,6 +16,11 @@ import userRoutes from './routes/user.routes';
 import apiKeysRoutes from './routes/apiKeys.routes';
 import auditLogsRoutes from './routes/auditLogs.routes';
 
+// Anomaly Detection routes
+import anomalyRoutes from './routes/anomaly.routes';
+import notificationRecipientsRoutes from './routes/notificationRecipients.routes';
+import anomalyRulesRoutes from './routes/anomalyRules.routes';
+
 const app: Application = express();
 
 // ============================================================================
@@ -26,7 +31,7 @@ const app: Application = express();
 app.use(helmet());
 
 // CORS configuration
-const corsOrigins = process.env.CORS_ORIGIN 
+const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : ['http://localhost:4003'];
 
@@ -81,6 +86,13 @@ app.use('/api/user', userRoutes);
 
 // Other routes
 app.use('/api/keys', apiKeysRoutes);
+
+// ============================================================================
+// ANOMALY DETECTION ROUTES
+// ============================================================================
+app.use('/api/anomalies', anomalyRoutes);
+app.use('/api/notification-recipients', notificationRecipientsRoutes);
+app.use('/api/anomaly-rules', anomalyRulesRoutes);
 
 // ============================================================================
 // ERROR HANDLING

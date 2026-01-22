@@ -46,6 +46,7 @@ created_at      DateTime  @default(now())
 
 // Relations
 action_type     action_type @relation(fields: [action_type_id], references: [id])
+anomaly_alerts  anomaly_alert[]
 
 @@index([entity_type, entity_id])
 @@index([action_type_id])
@@ -67,5 +68,96 @@ model ApiKey {
   updatedAt   DateTime @updatedAt
 }
 
+// ============================================================================
+// ANOMALY DETECTION SYSTEM
+// ============================================================================
+
+model anomaly_alert {
+  id              Int       @id @default(autoincrement())
+  audit_log_id    Int       // FK → audit_log that triggered this
+  anomaly_type    String    // VOLUME_SPIKE, OFF_HOURS, MASS_DELETE, RAPID_UPDATES, etc.
+  severity        String    // LOW, MEDIUM, HIGH, CRITICAL
+  
+  // AI-Generated Content
+  ai_explanation  String?   @db.Text  // LLM-generated explanation
+  ai_risk_score   Int?      // 1-100 risk score from AI
+  ai_suggestions  String?   @db.Text  // LLM-suggested actions (JSON array)
+  
+  // Context Data
+  context_data    Json?     // Additional context (user history, etc.)
+  
+  // Resolution
+  is_resolved     Boolean   @default(false)
+  resolved_by     String?
+  resolved_at     DateTime?
+  resolution_note String?   @db.Text
+  
+  // Notification Tracking
+  is_notified     Boolean   @default(false)
+  notified_at     DateTime?
+  notified_to     String[]  // Array of email addresses notified
+  
+  // Timestamps
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  // Relations
+  audit_log       audit_log @relation(fields: [audit_log_id], references: [id])
+  
+  // Indexes
+  @@index([anomaly_type])
+  @@index([severity])
+  @@index([is_resolved])
+  @@index([is_notified])
+  @@index([created_at])
+  @@index([audit_log_id])
+}
+
+model anomaly_rule {
+  id               Int       @id @default(autoincrement())
+  rule_code        String    @unique  // e.g., "VOLUME_SPIKE", "OFF_HOURS"
+  rule_name        String    // Human-readable name
+  description      String?   @db.Text
+  
+  // Rule Configuration (JSON for flexibility)
+  rule_config      Json      // { threshold: 10, timeWindowMinutes: 60, ... }
+  
+  // Severity and Status
+  default_severity String    @default("MEDIUM")  // LOW, MEDIUM, HIGH, CRITICAL
+  is_active        Boolean   @default(true)
+  
+  // Timestamps
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  
+  @@index([rule_code])
+  @@index([is_active])
+}
+
+model notification_recipient {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String
+  role            String?   // e.g., "Finance Admin", "SuperAdmin"
+  department      String?   // e.g., "Finance", "HR", "Operations"
+  
+  // Notification Preferences
+  notify_low      Boolean   @default(false)  // Receive LOW severity alerts
+  notify_medium   Boolean   @default(true)   // Receive MEDIUM severity alerts
+  notify_high     Boolean   @default(true)   // Receive HIGH severity alerts
+  notify_critical Boolean   @default(true)   // Receive CRITICAL severity alerts
+  
+  // Status
+  is_active       Boolean   @default(true)
+  
+  // Audit
+  created_by      String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([is_active])
+  @@index([department])
+}
 
 // END OF FINANCE AUDIT LOGS MICROSERVICE SCHEMA

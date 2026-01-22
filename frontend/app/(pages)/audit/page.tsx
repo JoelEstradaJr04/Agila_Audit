@@ -92,84 +92,83 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
   };
 
   return (
-      <div className="modalOverlay">
-        <div className="viewDetailsModal">
-          <div className="modalHeader">
-            <h2>Audit Log Details</h2>
-            <button onClick={onClose} className="closeButton">&times;</button>
-          </div>
-          <div className="modalContent">
-            <div className="audit-details-container">
-              {/* Primary Information Card */}
-              <div className="audit-detail-card">
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">🕒</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Date & Time</div>
-                    <div className="audit-detail-value">{formatDateTime(log.timestamp)}</div>
-                  </div>
+    <div className="modalOverlay">
+      <div className="viewDetailsModal">
+        <div className="modalHeader">
+          <h2>Audit Log Details</h2>
+          <button onClick={onClose} className="closeButton">&times;</button>
+        </div>
+        <div className="modalContent">
+          <div className="audit-details-container">
+            {/* Primary Information Card */}
+            <div className="audit-detail-card">
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">🕒</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Date & Time</div>
+                  <div className="audit-detail-value">{formatDateTime(log.timestamp)}</div>
                 </div>
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">{getActionIcon(log.action)}</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Action</div>
-                    <div className="audit-detail-value">
-                      <span className={`action-badge ${(log.action || '').toLowerCase()}`}>
-                        {log.action || 'N/A'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">{getTableIcon(log.table_affected)}</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Table Affected</div>
-                    <div className="audit-detail-value">{formatDisplayText(log.table_affected || '')}</div>
+              </div>
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">{getActionIcon(log.action)}</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Action</div>
+                  <div className="audit-detail-value">
+                    <span className={`action-badge ${(log.action || '').toLowerCase()}`}>
+                      {log.action || 'N/A'}
+                    </span>
                   </div>
                 </div>
               </div>
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">{getTableIcon(log.table_affected)}</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Table Affected</div>
+                  <div className="audit-detail-value">{formatDisplayText(log.table_affected || '')}</div>
+                </div>
+              </div>
+            </div>
 
-              {/* Secondary Information Card */}
-              <div className="audit-detail-card">
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">🔑</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Record ID</div>
-                    <div className="audit-detail-value">
-                      <span className="code-text">{log.record_id || 'N/A'}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">👤</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Performed By</div>
-                    <div className="audit-detail-value">{log.performed_by || 'N/A'}</div>
-                  </div>
-                </div>
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">🌐</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">IP Address</div>
-                    <div className="audit-detail-value">
-                      <span className="code-text">{log.ip_address || 'N/A'}</span>
-                    </div>
+            {/* Secondary Information Card */}
+            <div className="audit-detail-card">
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">🔑</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Record ID</div>
+                  <div className="audit-detail-value">
+                    <span className="code-text">{log.record_id || 'N/A'}</span>
                   </div>
                 </div>
               </div>
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">👤</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Performed By</div>
+                  <div className="audit-detail-value">{log.performed_by || 'N/A'}</div>
+                </div>
+              </div>
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">🌐</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">IP Address</div>
+                  <div className="audit-detail-value">
+                    <span className="code-text">{log.ip_address || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              {/* Details Card */}
-              <div className="audit-detail-card">
-                <div className="audit-detail-row">
-                  <div className="audit-detail-icon">📋</div>
-                  <div className="audit-detail-content">
-                    <div className="audit-detail-label">Details</div>
-                    <div className="audit-detail-value details-section">
-                      {typeof log.details === 'string'
-                        ? log.details
-                        : JSON.stringify(log.details, null, 2)
-                      }
-                    </div>
+            {/* Details Card */}
+            <div className="audit-detail-card">
+              <div className="audit-detail-row">
+                <div className="audit-detail-icon">📋</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Details</div>
+                  <div className="audit-detail-value details-section">
+                    {typeof log.details === 'string'
+                      ? log.details
+                      : JSON.stringify(log.details, null, 2)
+                    }
                   </div>
                 </div>
               </div>
@@ -177,6 +176,7 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
@@ -198,6 +198,7 @@ const AuditPage = () => {
   // Default sorting: newest first (descending by timestamp)
   const [sortField, setSortField] = useState<keyof AuditLog | null>('timestamp');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [isHover, setIsHover] = useState(false);
 
   // Handle search submission (Enter key or button click)
   const handleSearchSubmit = () => {
@@ -284,13 +285,13 @@ const AuditPage = () => {
       }
 
       const result = await response.json();
-      
+
       if (!result.success || !result.data) {
         throw new Error(result.message || 'Failed to fetch audit log details');
       }
 
       const log = result.data;
-      
+
       // Transform the full audit log data
       const transformedLog: AuditLog = {
         id: log.id,
@@ -342,7 +343,7 @@ const AuditPage = () => {
       if (actionFilter) params.append('action_type_code', actionFilter);
       if (dateFrom) params.append('dateFrom', dateFrom);
       if (dateTo) params.append('dateTo', dateTo);
-      
+
       // Map frontend field names to backend field names for sorting
       if (sortField) {
         const fieldMapping: Record<string, string> = {
@@ -363,10 +364,10 @@ const AuditPage = () => {
         throw new Error(response.statusText || 'Failed to fetch audit logs');
       }
       const data = await response.json();
-      
+
       // Handle different response formats
       let logs = [];
-      
+
       // Backend returns { success: true, data: [...], meta: {...} }
       if (data && data.success && Array.isArray(data.data)) {
         logs = data.data;
@@ -383,7 +384,7 @@ const AuditPage = () => {
         setAuditLogs([]);
         return;
       }
-      
+
       // Transform backend format to frontend format
       const transformedLogs = logs.map((log: Record<string, unknown>) => ({
         // Backend fields (schema-aligned)
@@ -407,9 +408,9 @@ const AuditPage = () => {
         // Use backend-generated details (single source of truth)
         details: log.details || `Version ${log.version} - ${log.action_type_code} on ${log.entity_type}`
       }));
-      
+
       setAuditLogs(transformedLogs);
-      
+
       // Extract total from backend metadata
       if (data && data.meta && typeof data.meta.total === 'number') {
         setTotalRecords(data.meta.total);
@@ -467,7 +468,7 @@ const AuditPage = () => {
   ];
 
   // Handle filter application - only includes filters that match table headers
-  const handleFilterApply = (filterValues: Record<string, string | string[] | {from: string; to: string}>) => {
+  const handleFilterApply = (filterValues: Record<string, string | string[] | { from: string; to: string }>) => {
     // Date range filter (matches Date & Time column)
     if (filterValues.dateRange && typeof filterValues.dateRange === 'object') {
       const dateRange = filterValues.dateRange as { from: string; to: string };
@@ -477,7 +478,7 @@ const AuditPage = () => {
       setDateFrom('');
       setDateTo('');
     }
-    
+
     // Table filter (matches Table column)
     if (filterValues.table && Array.isArray(filterValues.table) && filterValues.table.length > 0) {
       setTableFilter(filterValues.table.join(','));
@@ -499,151 +500,159 @@ const AuditPage = () => {
 
   if (loading) {
     return (
-        <>
-          <div style={{display: 'flex', flex: 1, width:'100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10}}>
-            <div style={{ display: 'flex', top: '1rem', left: '1rem', zIndex: 10 }}>
-              <BackButton variant="default" size="default" href={process.env.NEXT_PUBLIC_MAIN_FRONTEND} aria-label="Go back" />
-            </div>
+      <>
+        <div style={{ display: 'flex', flex: 1, width: '100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10 }}>
+          <div style={{ display: 'flex', top: '1rem', left: '1rem', zIndex: 10 }}>
+            <BackButton variant="default" size="default" href={process.env.NEXT_PUBLIC_MAIN_FRONTEND} aria-label="Go back" />
           </div>
-          <div className="card">
-              <h1 className="title">Finance Tracking Management</h1>
-              <Loading />
-          </div>
-        </>
+        </div>
+        <div className="card">
+          <h1 className="title">Finance Tracking Management</h1>
+          <Loading />
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      <div style={{display: 'flex', flex: 1, width:'100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10}}>
+      <div style={{ display: 'flex', flex: 1, width: '100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10 }}>
         <div style={{ display: 'flex', top: '1rem', left: '1rem', zIndex: 10 }}>
-          <BackButton variant="default" size="default" aria-label="Go back"  href={process.env.NEXT_PUBLIC_MAIN_FRONTEND}  />
+          <BackButton variant="default" size="default" aria-label="Go back" href={process.env.NEXT_PUBLIC_MAIN_FRONTEND} />
         </div>
       </div>
       <div className="card">
-      {/* <h1 className="title">Audit Logs</h1> */}
-      <div className="elements">
-        <h1 className="title">Audit Logs</h1>
-        <div className="settings">
-          <div className="search-filter-container">
-            <div className="searchBar">
-              <i className="ri-search-line" onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />
-              <input
-                type="text"
-                placeholder="  Search by Action, Table, Record ID, Performed By... (Press Enter)"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={handleSearchKeyDown}
-              />
-              {searchInput && (
-                <i 
-                  className="ri-close-line" 
-                  onClick={handleClearSearch} 
-                  style={{ cursor: 'pointer', marginLeft: '8px' }} 
+        {/* <h1 className="title">Audit Logs</h1> */}
+        <div className="elements">
+          <h1 className="title">Audit Logs</h1>
+          <div className="settings">
+            <div className="search-filter-container">
+              <div className="searchBar">
+                <i className="ri-search-line" onClick={handleSearchSubmit} style={{ cursor: 'pointer' }} />
+                <input
+                  type="text"
+                  placeholder="  Search by Action, Table, Record ID, Performed By... (Press Enter)"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                 />
-              )}
+                {searchInput && (
+                  <i
+                    className="ri-close-line"
+                    onClick={handleClearSearch}
+                    style={{ cursor: 'pointer', marginLeft: '8px' }}
+                  />
+                )}
+              </div>
+              <FilterDropdown
+                sections={filterSections}
+                onApply={handleFilterApply}
+                initialValues={{
+                  dateRange: { from: dateFrom, to: dateTo },
+                  action: actionFilter ? actionFilter.split(',') : [],
+                  table: tableFilter ? tableFilter.split(',') : []
+                }}
+              />
             </div>
-            <FilterDropdown
-              sections={filterSections}
-              onApply={handleFilterApply}
-              initialValues={{
-                dateRange: { from: dateFrom, to: dateTo },
-                action: actionFilter ? actionFilter.split(',') : [],
-                table: tableFilter ? tableFilter.split(',') : []
+
+            <div className="filters">
+              <button
+                className="exportButton"
+                style={{ marginRight: '10px',backgroundColor: isHover ? 'var(--primary-hover-color)' : 'var(--primary-color)', color: 'white', border: 'none' }}
+                onClick={() => window.location.href = '/anomalies'}
+              >
+                <i className="ri-alarm-warning-line" style={{ marginRight: '5px' }}></i>
+                Anomalies
+              </button>
+              <ExportButton
+                data={exportData}
+                filename="audit_logs"
+                columns={exportColumns}
+                title="Audit Logs Export"
+              />
+            </div>
+          </div>
+          <div className="table-wrapper">
+            <div className="tableContainer">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th onClick={() => handleSort('timestamp')} className="sortable">
+                      Date & Time
+                      {sortField === 'timestamp' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('action')} className="sortable">
+                      Action
+                      {sortField === 'action' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('table_affected')} className="sortable">
+                      Table
+                      {sortField === 'table_affected' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('record_id')} className="sortable">
+                      Record ID
+                      {sortField === 'record_id' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('performed_by')} className="sortable">
+                      Performed By
+                      {sortField === 'performed_by' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                    <th onClick={() => handleSort('ip_address')} className="sortable">
+                      IP Address
+                      {sortField === 'ip_address' && (
+                        <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
+                      )}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>{currentRecords.map((log, index) => (
+                  <tr key={log.log_id} onClick={() => {
+                    setSelectedLog(log);
+                    if (log.log_id) {
+                      fetchAuditLogDetails(log.log_id);
+                    }
+                  }}>
+                    <td>{(currentPage - 1) * pageSize + index + 1}</td>
+                    <td>{formatDateTime(log.timestamp)}</td>
+                    <td>{log.action || 'N/A'}</td>
+                    <td>{formatDisplayText(log.table_affected || '')}</td>
+                    <td>{log.record_id || 'N/A'}</td>
+                    <td>{log.performed_by || 'N/A'}</td>
+                    <td>{log.ip_address || 'N/A'}</td>
+                  </tr>
+                ))}</tbody></table>
+              {currentRecords.length === 0 && <p className="noRecords">No audit logs found.</p>}
+            </div>
+          </div>
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+          {selectedLog && (
+            <ViewDetailsModal
+              log={loadingDetails ? selectedLog : (selectedLogDetails || selectedLog)}
+              onClose={() => {
+                setSelectedLog(null);
+                setSelectedLogDetails(null);
               }}
             />
-          </div>
-
-          <div className="filters">
-            <ExportButton
-              data={exportData}
-              filename="audit_logs"
-              columns={exportColumns}
-              title="Audit Logs Export"
-            />
-          </div>
+          )}
         </div>
-        <div className="table-wrapper">
-          <div className="tableContainer">
-            <table className="data-table">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th onClick={() => handleSort('timestamp')} className="sortable">
-                  Date & Time
-                  {sortField === 'timestamp' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-                <th onClick={() => handleSort('action')} className="sortable">
-                  Action
-                  {sortField === 'action' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-                <th onClick={() => handleSort('table_affected')} className="sortable">
-                  Table
-                  {sortField === 'table_affected' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-                <th onClick={() => handleSort('record_id')} className="sortable">
-                  Record ID
-                  {sortField === 'record_id' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-                <th onClick={() => handleSort('performed_by')} className="sortable">
-                  Performed By
-                  {sortField === 'performed_by' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-                <th onClick={() => handleSort('ip_address')} className="sortable">
-                  IP Address
-                  {sortField === 'ip_address' && (
-                    <i className={`ri-arrow-${sortOrder === 'asc' ? 'up' : 'down'}-line`} />
-                  )}
-                </th>
-              </tr>
-            </thead>
-            <tbody>{currentRecords.map((log, index) => (
-              <tr key={log.log_id} onClick={() => {
-                setSelectedLog(log);
-                if (log.log_id) {
-                  fetchAuditLogDetails(log.log_id);
-                }
-              }}>
-                <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                <td>{formatDateTime(log.timestamp)}</td>
-                <td>{log.action || 'N/A'}</td>
-                <td>{formatDisplayText(log.table_affected || '')}</td>
-                <td>{log.record_id || 'N/A'}</td>
-                <td>{log.performed_by || 'N/A'}</td>
-                <td>{log.ip_address || 'N/A'}</td>
-              </tr>
-            ))}</tbody></table>
-            {currentRecords.length === 0 && <p className="noRecords">No audit logs found.</p>}
-          </div>
-        </div>
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
-        />
-        {selectedLog && (
-          <ViewDetailsModal
-            log={loadingDetails ? selectedLog : (selectedLogDetails || selectedLog)}
-            onClose={() => {
-              setSelectedLog(null);
-              setSelectedLogDetails(null);
-            }}
-          />
-        )}
       </div>
-    </div>
     </>
   );
 };
