@@ -160,4 +160,19 @@ model notification_recipient {
   @@index([department])
 }
 
+
+// ============================================================================
+// SYSTEM CONFIGURATION
+// ============================================================================
+
+model system_config {
+  key         String   @id
+  value       String   @db.Text
+  description String?  @db.Text
+  is_encrypted Boolean @default(false)
+  
+  updated_at  DateTime @default(now()) @updatedAt
+  updated_by  String?
+}
+
 // END OF FINANCE AUDIT LOGS MICROSERVICE SCHEMA

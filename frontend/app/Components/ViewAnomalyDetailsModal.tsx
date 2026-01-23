@@ -45,7 +45,7 @@ const ViewAnomalyDetailsModal: React.FC<Props> = ({ data, onClose, onResolve }) 
                 </div>
                 <div className="modal-date-time">
                     <div>{formatDateTime(data.created_at)}</div>
-                    <button className="close-modal-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button>
+                    <button className="close-modal-btn" onClick={onClose}><i className="ri-close-line"></i></button>
                 </div>
             </div>
 
@@ -140,33 +140,43 @@ const ViewAnomalyDetailsModal: React.FC<Props> = ({ data, onClose, onResolve }) 
                 </>
             )}
 
-            <div className="modal-actions">
-                {!data.is_resolved && onResolve && (
-                    !showResolveInput ? (
-                        <button className="submit-btn" onClick={() => setShowResolveInput(true)}>
-                            Resolve Alert
-                        </button>
-                    ) : (
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
-                            <div className="form-group" style={{ flex: 1 }}>
-                                <label>Resolution Note</label>
-                                <input
-                                    type="text"
-                                    placeholder="Reason for resolution..."
-                                    value={resolutionNote}
-                                    onChange={(e) => setResolutionNote(e.target.value)}
-                                />
-                            </div>
-                            <button className="submit-btn" style={{ height: '35px', marginBottom: '1px' }} onClick={handleResolveClick}>
-                                Confirm
-                            </button>
-                            <button className="cancel-btn" style={{ height: '35px', marginBottom: '1px' }} onClick={() => setShowResolveInput(false)}>
-                                Cancel
-                            </button>
+            {!data.is_resolved && onResolve && (
+                <>
+                    <p className="details-title" style={{ marginTop: '20px', fontWeight: 600 }}>Resolution Note <span className='requiredTags'>*</span></p>
+                    <div style={{ padding: '0 20px 20px 20px' }}>
+                        <div className="form-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Reason for resolution..."
+                                value={resolutionNote}
+                                onChange={(e) => setResolutionNote(e.target.value)}
+                                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                            />
                         </div>
-                    )
+                    </div>
+                </>
+            )}
+
+            <div className="modal-actions" style={{ padding: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                {!data.is_resolved && onResolve ? (
+                    <>
+                        <button className="submit-btn" style={{ backgroundColor: '#A02020', border: 'none', color: 'white', fontWeight: 600 }} onClick={handleResolveClick}>
+                            Resolve
+                        </button>
+                        <button className="cancel-btn" style={{ border: 'none', background: 'none', color: 'black', fontWeight: 600 }} onClick={onClose}>
+                            Cancel
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        className="cancel-btn"
+                        style={{ border: 'none', background: 'none', color: 'black', fontWeight: 600, marginLeft: 'auto' }}
+                        onClick={onClose}
+                    >
+                        Close
+                    </button>
                 )}
-                <button className="cancel-btn" onClick={onClose}>Close</button>
             </div>
         </>
     );

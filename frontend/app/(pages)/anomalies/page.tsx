@@ -251,7 +251,7 @@ export default function AnomaliesPage() {
                                                         }}
                                                         title="View Details"
                                                     >
-                                                        <i className="fa-solid fa-eye"></i>
+                                                        <i className="ri-eye-line"></i>
                                                     </button>
                                                 </td>
                                             </tr>

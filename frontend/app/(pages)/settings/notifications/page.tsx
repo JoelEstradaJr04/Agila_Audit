@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ModalManager from '../../../Components/modalManager';
 import AddRecipientModal, { RecipientData } from '../../../Components/AddRecipientModal';
+
 import { BackButton } from '../../../Components/backButton';
 import Loading from '../../../Components/loading';
 import '../../../styles/components/table.css';
@@ -72,6 +73,8 @@ export default function NotificationSettingsPage() {
         );
         setIsModalOpen(true);
     };
+
+
 
     const handleToggleStatus = async (id: number) => {
         try {
@@ -142,7 +145,7 @@ export default function NotificationSettingsPage() {
                         <div className="search-filter-container">
                             <p style={{ color: 'var(--secondary-text-color)' }}>Manage who receives email alerts for anomalies.</p>
                         </div>
-                        <div className="filters">
+                        <div className="filters" style={{ display: 'flex', gap: '10px' }}>
                             <button
                                 onClick={openAddModal}
                                 style={{
@@ -217,7 +220,7 @@ export default function NotificationSettingsPage() {
                                                         >
                                                             <i className={`ri-arrow-${r.is_active ? 'up-fill' : 'down-fill'}`}></i>
                                                         </button>
-                                                            
+
                                                         <button
                                                             onClick={() => handleDelete(r.id)}
                                                             className="deleteBtn"

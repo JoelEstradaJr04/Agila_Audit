@@ -21,6 +21,7 @@ import anomalyRoutes from './routes/anomaly.routes';
 import notificationRecipientsRoutes from './routes/notificationRecipients.routes';
 import anomalyRulesRoutes from './routes/anomalyRules.routes';
 
+
 const app: Application = express();
 
 // ============================================================================
@@ -33,7 +34,7 @@ app.use(helmet());
 // CORS configuration
 const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : ['http://localhost:4003'];
+  : ['http://localhost:4003', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
 
 app.use(
   cors({
@@ -93,6 +94,7 @@ app.use('/api/keys', apiKeysRoutes);
 app.use('/api/anomalies', anomalyRoutes);
 app.use('/api/notification-recipients', notificationRecipientsRoutes);
 app.use('/api/anomaly-rules', anomalyRulesRoutes);
+
 
 // ============================================================================
 // ERROR HANDLING
