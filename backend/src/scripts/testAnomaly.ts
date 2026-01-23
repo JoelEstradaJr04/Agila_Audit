@@ -3,9 +3,29 @@ import { PrismaClient } from '@prisma/client';
 import { checkForAnomalies } from '../services/anomalyDetection.service';
 
 const prisma = new PrismaClient();
+import { getAdminEmails } from '../services/notificationRecipients.service';
+import { testEmailConfiguration } from '../services/email.service';
 
 async function main() {
     console.log('🚀 Starting Anomaly Detection Test Script...');
+
+    // 0. Pre-flight checks
+    console.log('\n🔍 Checking Email Configuration...');
+    const emailTest = await testEmailConfiguration();
+    if (emailTest.success) {
+        console.log(`✅ ${emailTest.message}`);
+    } else {
+        console.error(`❌ ${emailTest.message}`);
+    }
+
+    console.log('\n🔍 Checking Recipients for MEDIUM severity...');
+    const recipients = await getAdminEmails('MEDIUM');
+    if (recipients.length > 0) {
+        console.log(`✅ Found ${recipients.length} recipients for MEDIUM: ${recipients.map(r => r.email).join(', ')}`);
+    } else {
+        console.warn('⚠️ No recipients found for MEDIUM severity! Emails will NOT be sent.');
+    }
+    console.log('----------------------------------------\n');
 
     try {
         // 1. Get or Create Action Type 'UPDATE'

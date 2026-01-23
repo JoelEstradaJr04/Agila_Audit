@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ModalManager from '../../../Components/modalManager';
 import AddRecipientModal, { RecipientData } from '../../../Components/AddRecipientModal';
+import AnomalyRulesModal from '../../../Components/AnomalyRulesModal';
 
 import { BackButton } from '../../../Components/backButton';
 import Loading from '../../../Components/loading';
@@ -69,6 +70,15 @@ export default function NotificationSettingsPage() {
             <AddRecipientModal
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleCreateRecipient}
+            />
+        );
+        setIsModalOpen(true);
+    };
+
+    const openRulesModal = () => {
+        setModalContent(
+            <AnomalyRulesModal
+                onClose={() => setIsModalOpen(false)}
             />
         );
         setIsModalOpen(true);
@@ -162,6 +172,16 @@ export default function NotificationSettingsPage() {
                             <p style={{ color: 'var(--secondary-text-color)' }}>Manage who receives email alerts for anomalies.</p>
                         </div>
                         <div className="filters" style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                onClick={openRulesModal}
+                                style={{
+                                    height: '35px', padding: '0 15px', borderRadius: '8px',
+                                    backgroundColor: 'var(--secondary-color)', color: 'white', border: 'none',
+                                    fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                                }}
+                            >
+                                <i className="ri-settings-3-line"></i> Configure Rules
+                            </button>
                             <button
                                 onClick={openAddModal}
                                 style={{
