@@ -141,6 +141,22 @@ export default function AnomaliesPage() {
         setCurrentPage(1); // Reset pagination
     };
 
+    if (loading) {
+        return (
+            <>
+                <div style={{ display: 'flex', flex: 1, width: '100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10 }}>
+                    <div style={{ display: 'flex', top: '1rem', left: '1rem', zIndex: 10 }}>
+                        <BackButton variant="default" size="default" href={process.env.NEXT_PUBLIC_MAIN_FRONTEND || '/audit'} aria-label="Go back" />
+                    </div>
+                </div>
+                <div className="card">
+                    <h1 className="title">Anomaly Detection Dashboard</h1>
+                    <Loading />
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             {/* Back Button */}
@@ -149,7 +165,7 @@ export default function AnomaliesPage() {
                     <BackButton variant="default" size="default" href="/audit" aria-label="Go back" />
                 </div>
             </div>
-            
+
             <div className="card">
                 <div className="elements">
                     <h1 className="title" style={{ fontSize: '24px', fontWeight: 600, marginBottom: '15px' }}>Anomaly Detection Dashboard</h1>
@@ -213,9 +229,7 @@ export default function AnomaliesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {loading ? (
-                                        <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}><Loading /></td></tr>
-                                    ) : anomalies.length === 0 ? (
+                                    {anomalies.length === 0 ? (
                                         <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }} className="noRecords">No anomalies found.</td></tr>
                                     ) : (
                                         anomalies.map((anomaly) => (
@@ -277,6 +291,6 @@ export default function AnomaliesPage() {
                 onClose={() => setIsModalOpen(false)}
                 modalContent={modalContent}
             />
-            </>
+        </>
     );
 }

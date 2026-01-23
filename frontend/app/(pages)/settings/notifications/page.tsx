@@ -129,6 +129,22 @@ export default function NotificationSettingsPage() {
         }
     };
 
+    if (loading) {
+        return (
+            <>
+                <div style={{ display: 'flex', flex: 1, width: '100%', paddingLeft: 30, paddingTop: 10, paddingBottom: 10 }}>
+                    <div style={{ display: 'flex', top: '1rem', left: '1rem', zIndex: 10 }}>
+                        <BackButton variant="default" size="default" href={process.env.NEXT_PUBLIC_MAIN_FRONTEND || '/anomalies'} aria-label="Go back" />
+                    </div>
+                </div>
+                <div className="card">
+                    <h1 className="title">Notification Settings</h1>
+                    <Loading />
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             <div style={{ paddingLeft: '30px', paddingTop: '10px', paddingBottom: '10px', width: '100%' }}>
@@ -172,9 +188,7 @@ export default function NotificationSettingsPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {loading ? (
-                                        <tr><td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}><Loading /></td></tr>
-                                    ) : recipients.length === 0 ? (
+                                    {recipients.length === 0 ? (
                                         <tr><td colSpan={5} style={{ textAlign: 'center', padding: '20px' }} className="noRecords">No recipients found.</td></tr>
                                     ) : (
                                         recipients.map((r) => (
