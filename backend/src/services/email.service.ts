@@ -208,7 +208,9 @@ function buildEmailTemplate(alert: any, aiAnalysis: LLMAnalysisResult): string {
       border-bottom: 1px solid #eee;
     }
     .severity-badge { 
-      display: inline-block; 
+      display: inline-flex; 
+      align-items: center;
+      justify-content: center;
       padding: 8px 20px; 
       border-radius: 25px; 
       font-weight: bold; 
@@ -234,11 +236,11 @@ function buildEmailTemplate(alert: any, aiAnalysis: LLMAnalysisResult): string {
       padding: 20px; 
       border-radius: 10px; 
       margin: 20px 0; 
-      border-left: 4px solid #007bff; 
+      border: 4px solid #961C1E; 
     }
     .ai-section h3 {
       margin: 0 0 10px 0;
-      color: #007bff;
+      color: #961C1E;
       font-size: 16px;
     }
     .ai-section p {
@@ -303,7 +305,7 @@ function buildEmailTemplate(alert: any, aiAnalysis: LLMAnalysisResult): string {
 <body>
   <div class="container">
     <div class="header">
-      <h1>🔍 Anomaly Detected</h1>
+      <h1 style="font-weight: bold;">Anomaly Detected</h1>
       <p>Agila Audit System Security Alert</p>
     </div>
     
@@ -321,16 +323,16 @@ function buildEmailTemplate(alert: any, aiAnalysis: LLMAnalysisResult): string {
       </h2>
       
       <div class="ai-section">
-        <h3>🤖 AI Analysis</h3>
+        <h3 style="font-weight: bold;">AI Analysis</h3>
         <p>${aiAnalysis.explanation}</p>
       </div>
       
-      <h3 style="margin-bottom: 10px;">📋 Recommended Actions</h3>
+      <h3 style="margin-bottom: 10px; font-weight: bold;">Recommended Actions</h3>
       <ul class="suggestions">
         ${(Array.isArray(suggestions) ? suggestions : []).map((s: string) => `<li>${s}</li>`).join('')}
       </ul>
       
-      <h3 style="margin-bottom: 10px;">📊 Alert Details</h3>
+      <h3 style="margin-bottom: 10px; font-weight: bold;">Alert Details</h3>
       <table class="details-table">
         <tr>
           <td>Alert ID</td>
@@ -346,9 +348,7 @@ function buildEmailTemplate(alert: any, aiAnalysis: LLMAnalysisResult): string {
         </tr>
       </table>
       
-      <a href="${FRONTEND_URL}/anomalies/${alert.id}" class="button" style="color: #ffffff;">
-        View in Dashboard →
-      </a>
+
     </div>
     
     <div class="footer">
@@ -389,7 +389,7 @@ Alert ID: #${alert.id}
 Audit Log ID: #${alert.audit_log_id}
 Detected At: ${new Date(alert.created_at).toLocaleString()}
 
-View in Dashboard: ${FRONTEND_URL}/anomalies/${alert.id}
+
 
 ---
 This is an automated alert from the Agila Audit System.
