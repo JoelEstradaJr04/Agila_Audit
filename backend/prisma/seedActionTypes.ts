@@ -45,6 +45,18 @@ async function seedActionTypes() {
     {
       code: 'UNARCHIVE',
       is_active: true,
+    },
+    {
+      code: 'APPROVE',
+      is_active: true,
+    },
+    {
+      code: 'REJECT',
+      is_active: true,
+    },
+    {
+      code: 'SUBMIT',
+      is_active: true,
     }
   ];
 
