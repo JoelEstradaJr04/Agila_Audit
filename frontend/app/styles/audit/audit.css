@@ -101,6 +101,33 @@
   color: var(--primary-text-color) !important;
 }
 
+
+.anomalyButton {
+    height: var(--page-button-height, 2.5rem);
+    width: var(--page-button-width, auto);
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 1rem;
+    border-radius: var(--page-button-border-radius, 6px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    text-align: center !important;
+    align-content: center !important;
+    justify-content: center !important;
+    gap: var(--page-button-gap, 0.5rem);
+    font-size: var(--page-button-font-size, 14px);
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    font-family: "Open Sans", sans-serif !important;
+}
+
+.anomalyButton:hover {
+  background: var(--primary-hover-color) !important;
+}
+
 /* ---------- Modal Content ---------- */
 .modalContent {
   display: flex !important;

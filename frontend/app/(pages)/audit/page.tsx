@@ -557,7 +557,7 @@ const AuditPage = () => {
 
             <div className="filters">
               <button
-                className="exportButton"
+                className="anomalyButton"
                 style={{ marginRight: '10px',backgroundColor: isHover ? 'var(--primary-hover-color)' : 'var(--primary-color)', color: 'white', border: 'none' }}
                 onClick={() => window.location.href = '/anomalies'}
               >
