@@ -97,7 +97,7 @@ export async function sendAnomalyAlert(
       const resend = new Resend(emailConfig.apiKey);
 
       const response = await resend.emails.send({
-        from: 'Agila Audit <onboarding@resend.dev>',
+        from: 'Agila Audit <notifications@agilabuscorp.me>',
         to: recipients.map(r => r.email),
         subject: `🚨 [${alert.severity}] Anomaly Detected: ${formatAnomalyType(alert.anomaly_type)}`,
         html: emailHtml,
