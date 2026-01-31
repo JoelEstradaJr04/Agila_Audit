@@ -72,6 +72,18 @@ and maintaining compliance records across the Financial Transaction Management S
       name: 'API Keys',
       description: 'API key management endpoints (SuperAdmin only)',
     },
+    {
+      name: 'Anomalies',
+      description: 'Anomaly detection alerts and management. View detected anomalies, resolve alerts, and manually trigger checks.',
+    },
+    {
+      name: 'Anomaly Rules',
+      description: 'Manage configurable anomaly detection rules. Create, update, toggle, and delete rules that control how anomalies are detected.',
+    },
+    {
+      name: 'Notification Recipients',
+      description: 'Manage email notification recipients for anomaly alerts. Configure who receives alerts based on severity levels.',
+    },
   ],
   components: {
     securitySchemes: {
@@ -449,6 +461,419 @@ and maintaining compliance records across the Financial Transaction Management S
           environment: {
             type: 'string',
             example: 'development',
+          },
+        },
+      },
+
+      // ============================================================================
+      // Anomaly Detection Schemas
+      // ============================================================================
+      AnomalyAlert: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            example: 1,
+          },
+          audit_log_id: {
+            type: 'integer',
+            example: 123,
+          },
+          anomaly_type: {
+            type: 'string',
+            enum: ['VOLUME_SPIKE', 'OFF_HOURS', 'MASS_DELETE', 'RAPID_UPDATES'],
+            example: 'VOLUME_SPIKE',
+          },
+          severity: {
+            type: 'string',
+            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            example: 'HIGH',
+          },
+          description: {
+            type: 'string',
+            example: 'User performed 75 actions within 60 minutes (threshold: 50)',
+          },
+          detected_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+          is_resolved: {
+            type: 'boolean',
+            example: false,
+          },
+          resolved_by: {
+            type: 'string',
+            nullable: true,
+            example: 'admin-001',
+          },
+          resolved_at: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+          },
+          resolution_note: {
+            type: 'string',
+            nullable: true,
+            example: 'Verified as authorized bulk operation',
+          },
+          metadata: {
+            type: 'object',
+            description: 'Additional context about the anomaly',
+          },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+        },
+      },
+      AnomalyStats: {
+        type: 'object',
+        properties: {
+          total: {
+            type: 'integer',
+            example: 150,
+          },
+          unresolved: {
+            type: 'integer',
+            example: 25,
+          },
+          bySeverity: {
+            type: 'object',
+            additionalProperties: {
+              type: 'integer',
+            },
+            example: {
+              LOW: 50,
+              MEDIUM: 60,
+              HIGH: 30,
+              CRITICAL: 10,
+            },
+          },
+          byType: {
+            type: 'object',
+            additionalProperties: {
+              type: 'integer',
+            },
+            example: {
+              VOLUME_SPIKE: 40,
+              OFF_HOURS: 35,
+              MASS_DELETE: 25,
+              RAPID_UPDATES: 50,
+            },
+          },
+          recentActivity: {
+            type: 'integer',
+            example: 12,
+            description: 'Anomalies detected in last 24 hours',
+          },
+        },
+      },
+
+      // ============================================================================
+      // Anomaly Rules Schemas
+      // ============================================================================
+      AnomalyRule: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            example: 1,
+          },
+          rule_code: {
+            type: 'string',
+            example: 'VOLUME_SPIKE',
+          },
+          rule_name: {
+            type: 'string',
+            example: 'Volume Spike Detection',
+          },
+          description: {
+            type: 'string',
+            nullable: true,
+            example: 'Detects when a user performs an unusually high number of actions in a short time period',
+          },
+          rule_config: {
+            type: 'object',
+            description: 'Rule-specific configuration parameters',
+            example: {
+              threshold: 50,
+              time_window_minutes: 60,
+            },
+          },
+          default_severity: {
+            type: 'string',
+            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            example: 'HIGH',
+          },
+          is_active: {
+            type: 'boolean',
+            example: true,
+          },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+          updated_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+        },
+      },
+      CreateAnomalyRule: {
+        type: 'object',
+        required: ['rule_code', 'rule_name', 'rule_config'],
+        properties: {
+          rule_code: {
+            type: 'string',
+            example: 'CUSTOM_RULE',
+            description: 'Unique identifier code for the rule (will be uppercased)',
+          },
+          rule_name: {
+            type: 'string',
+            example: 'Custom Detection Rule',
+            description: 'Human-readable name for the rule',
+          },
+          description: {
+            type: 'string',
+            nullable: true,
+            example: 'Detects custom anomaly patterns',
+          },
+          rule_config: {
+            type: 'object',
+            description: 'Configuration parameters specific to this rule',
+            example: {
+              threshold: 10,
+              time_window_minutes: 30,
+            },
+          },
+          default_severity: {
+            type: 'string',
+            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            default: 'MEDIUM',
+            example: 'MEDIUM',
+          },
+          is_active: {
+            type: 'boolean',
+            default: true,
+            example: true,
+          },
+        },
+      },
+      UpdateAnomalyRule: {
+        type: 'object',
+        properties: {
+          rule_name: {
+            type: 'string',
+            example: 'Updated Rule Name',
+          },
+          description: {
+            type: 'string',
+            nullable: true,
+          },
+          rule_config: {
+            type: 'object',
+            example: {
+              threshold: 100,
+            },
+          },
+          default_severity: {
+            type: 'string',
+            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            example: 'HIGH',
+          },
+          is_active: {
+            type: 'boolean',
+            example: true,
+          },
+        },
+      },
+
+      // ============================================================================
+      // Notification Recipients Schemas
+      // ============================================================================
+      NotificationRecipient: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            example: 1,
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'admin@example.com',
+          },
+          name: {
+            type: 'string',
+            example: 'System Administrator',
+          },
+          role: {
+            type: 'string',
+            nullable: true,
+            example: 'Admin',
+          },
+          department: {
+            type: 'string',
+            nullable: true,
+            example: 'IT',
+          },
+          is_active: {
+            type: 'boolean',
+            example: true,
+          },
+          notify_low: {
+            type: 'boolean',
+            example: false,
+            description: 'Receive notifications for LOW severity anomalies',
+          },
+          notify_medium: {
+            type: 'boolean',
+            example: true,
+            description: 'Receive notifications for MEDIUM severity anomalies',
+          },
+          notify_high: {
+            type: 'boolean',
+            example: true,
+            description: 'Receive notifications for HIGH severity anomalies',
+          },
+          notify_critical: {
+            type: 'boolean',
+            example: true,
+            description: 'Receive notifications for CRITICAL severity anomalies',
+          },
+          created_by: {
+            type: 'string',
+            nullable: true,
+            example: 'admin-001',
+          },
+          created_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+          updated_at: {
+            type: 'string',
+            format: 'date-time',
+            example: '2026-01-22T10:30:00Z',
+          },
+        },
+      },
+      CreateNotificationRecipient: {
+        type: 'object',
+        required: ['email', 'name'],
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'admin@example.com',
+            description: 'Email address for notifications',
+          },
+          name: {
+            type: 'string',
+            example: 'System Administrator',
+            description: 'Display name of the recipient',
+          },
+          role: {
+            type: 'string',
+            nullable: true,
+            example: 'Admin',
+            description: 'Role or job title',
+          },
+          department: {
+            type: 'string',
+            nullable: true,
+            example: 'IT',
+            description: 'Department name',
+          },
+          notify_low: {
+            type: 'boolean',
+            default: false,
+            example: false,
+            description: 'Receive LOW severity notifications',
+          },
+          notify_medium: {
+            type: 'boolean',
+            default: true,
+            example: true,
+            description: 'Receive MEDIUM severity notifications',
+          },
+          notify_high: {
+            type: 'boolean',
+            default: true,
+            example: true,
+            description: 'Receive HIGH severity notifications',
+          },
+          notify_critical: {
+            type: 'boolean',
+            default: true,
+            example: true,
+            description: 'Receive CRITICAL severity notifications',
+          },
+        },
+      },
+      UpdateNotificationRecipient: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'updated@example.com',
+          },
+          name: {
+            type: 'string',
+            example: 'Updated Name',
+          },
+          role: {
+            type: 'string',
+            nullable: true,
+          },
+          department: {
+            type: 'string',
+            nullable: true,
+          },
+          is_active: {
+            type: 'boolean',
+          },
+          notify_low: {
+            type: 'boolean',
+          },
+          notify_medium: {
+            type: 'boolean',
+          },
+          notify_high: {
+            type: 'boolean',
+          },
+          notify_critical: {
+            type: 'boolean',
+          },
+        },
+      },
+
+      // ============================================================================
+      // Pagination Schema
+      // ============================================================================
+      Pagination: {
+        type: 'object',
+        properties: {
+          page: {
+            type: 'integer',
+            example: 1,
+          },
+          limit: {
+            type: 'integer',
+            example: 10,
+          },
+          total: {
+            type: 'integer',
+            example: 100,
+          },
+          totalPages: {
+            type: 'integer',
+            example: 10,
           },
         },
       },

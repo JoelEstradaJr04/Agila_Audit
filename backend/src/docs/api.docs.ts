@@ -708,6 +708,858 @@
  */
 
 // ============================================================================
+// ANOMALY DETECTION ENDPOINTS
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/anomalies:
+ *   get:
+ *     tags:
+ *       - Anomalies
+ *     summary: Get all anomaly alerts
+ *     description: |
+ *       Retrieves all detected anomaly alerts with optional filtering by severity, type, and resolution status.
+ *       Supports pagination and sorting.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: severity
+ *         schema:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *         description: Filter by severity level
+ *       - in: query
+ *         name: anomaly_type
+ *         schema:
+ *           type: string
+ *           enum: [VOLUME_SPIKE, OFF_HOURS, MASS_DELETE, RAPID_UPDATES]
+ *         description: Filter by anomaly type
+ *       - in: query
+ *         name: is_resolved
+ *         schema:
+ *           type: boolean
+ *         description: Filter by resolution status (true/false)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of records per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: created_at
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Anomaly alerts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/AnomalyAlert'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomalies/stats:
+ *   get:
+ *     tags:
+ *       - Anomalies
+ *     summary: Get anomaly statistics
+ *     description: |
+ *       Returns aggregate statistics about detected anomalies including counts by severity,
+ *       type, and resolution status.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Anomaly statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyStats'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomalies/{id}:
+ *   get:
+ *     tags:
+ *       - Anomalies
+ *     summary: Get anomaly by ID
+ *     description: Retrieves a single anomaly alert by its ID with full details.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Anomaly alert ID
+ *     responses:
+ *       200:
+ *         description: Anomaly retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyAlert'
+ *       404:
+ *         description: Anomaly not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomalies/{id}/resolve:
+ *   patch:
+ *     tags:
+ *       - Anomalies
+ *     summary: Mark anomaly as resolved
+ *     description: |
+ *       Marks an anomaly alert as resolved. Optionally includes a resolution note
+ *       explaining how the anomaly was addressed.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Anomaly alert ID
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               resolution_note:
+ *                 type: string
+ *                 description: Optional note explaining the resolution
+ *                 example: Verified as authorized bulk operation by admin
+ *     responses:
+ *       200:
+ *         description: Anomaly marked as resolved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyAlert'
+ *                 message:
+ *                   type: string
+ *                   example: Anomaly marked as resolved
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomalies/check/{auditLogId}:
+ *   post:
+ *     tags:
+ *       - Anomalies
+ *     summary: Manually trigger anomaly check
+ *     description: |
+ *       Manually triggers an anomaly detection check for a specific audit log entry.
+ *       Useful for testing detection rules or re-checking previously logged entries.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: auditLogId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Audit log ID to check for anomalies
+ *     responses:
+ *       200:
+ *         description: Anomaly check completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     auditLogId:
+ *                       type: integer
+ *                       example: 123
+ *                     anomaliesDetected:
+ *                       type: integer
+ *                       example: 2
+ *                     anomalies:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/AnomalyAlert'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+// ============================================================================
+// ANOMALY RULES ENDPOINTS
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/anomaly-rules:
+ *   get:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: List all anomaly detection rules
+ *     description: Retrieves all configured anomaly detection rules ordered by rule code.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Rules retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/AnomalyRule'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   post:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Create a new detection rule
+ *     description: Creates a new anomaly detection rule with custom configuration.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAnomalyRule'
+ *           example:
+ *             rule_code: CUSTOM_RULE
+ *             rule_name: Custom Detection Rule
+ *             description: Detects custom anomaly patterns
+ *             rule_config:
+ *               threshold: 10
+ *               time_window_minutes: 30
+ *             default_severity: MEDIUM
+ *             is_active: true
+ *     responses:
+ *       201:
+ *         description: Rule created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyRule'
+ *                 message:
+ *                   type: string
+ *                   example: Rule created successfully
+ *       400:
+ *         description: Validation error or rule code already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomaly-rules/defaults:
+ *   get:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Get default rule configurations
+ *     description: |
+ *       Returns the default rule configurations for reference. These are the built-in
+ *       rule configurations that can be used as templates.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Default rules retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rule_code:
+ *                         type: string
+ *                         example: VOLUME_SPIKE
+ *                       rule_config:
+ *                         type: object
+ *                         example:
+ *                           threshold: 50
+ *                           time_window_minutes: 60
+ *                       default_severity:
+ *                         type: string
+ *                         example: HIGH
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomaly-rules/seed-defaults:
+ *   post:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Seed default rules into database
+ *     description: |
+ *       Seeds or updates the default anomaly detection rules in the database.
+ *       Uses upsert to create new rules or update existing ones.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Default rules seeded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Default rules seeded
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       rule_code:
+ *                         type: string
+ *                         example: VOLUME_SPIKE
+ *                       status:
+ *                         type: string
+ *                         example: success
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomaly-rules/{id}:
+ *   get:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Get rule by ID
+ *     description: Retrieves a single anomaly detection rule by its ID.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Rule ID
+ *     responses:
+ *       200:
+ *         description: Rule retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyRule'
+ *       404:
+ *         description: Rule not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   patch:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Update a detection rule
+ *     description: Updates an existing anomaly detection rule. All fields are optional.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Rule ID
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateAnomalyRule'
+ *           example:
+ *             rule_name: Updated Rule Name
+ *             rule_config:
+ *               threshold: 100
+ *             default_severity: HIGH
+ *             is_active: true
+ *     responses:
+ *       200:
+ *         description: Rule updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyRule'
+ *                 message:
+ *                   type: string
+ *                   example: Rule updated successfully
+ *       400:
+ *         description: Invalid severity value
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   delete:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Delete a detection rule
+ *     description: Permanently deletes an anomaly detection rule.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Rule ID
+ *     responses:
+ *       200:
+ *         description: Rule deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Rule deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/anomaly-rules/{id}/toggle:
+ *   patch:
+ *     tags:
+ *       - Anomaly Rules
+ *     summary: Toggle rule active status
+ *     description: Toggles the active/inactive status of an anomaly detection rule.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Rule ID
+ *     responses:
+ *       200:
+ *         description: Rule status toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/AnomalyRule'
+ *                 message:
+ *                   type: string
+ *                   example: Rule enabled successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+// ============================================================================
+// NOTIFICATION RECIPIENTS ENDPOINTS
+// ============================================================================
+
+/**
+ * @swagger
+ * /api/notification-recipients:
+ *   get:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: List all notification recipients
+ *     description: Retrieves all configured email notification recipients.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Recipients retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/NotificationRecipient'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   post:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Add a new notification recipient
+ *     description: |
+ *       Adds a new email recipient for anomaly alert notifications.
+ *       Configure which severity levels they should receive notifications for.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateNotificationRecipient'
+ *           example:
+ *             email: admin@example.com
+ *             name: System Administrator
+ *             role: Admin
+ *             department: IT
+ *             notify_low: false
+ *             notify_medium: true
+ *             notify_high: true
+ *             notify_critical: true
+ *     responses:
+ *       201:
+ *         description: Recipient added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/NotificationRecipient'
+ *                 message:
+ *                   type: string
+ *                   example: Recipient added successfully
+ *       400:
+ *         description: Validation error or email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/notification-recipients/test-email:
+ *   get:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Test email configuration
+ *     description: |
+ *       Tests the email configuration by attempting to verify the SMTP connection.
+ *       Useful for validating email settings before adding recipients.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email configuration test result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Email configuration is valid
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/notification-recipients/{id}:
+ *   get:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Get recipient by ID
+ *     description: Retrieves a single notification recipient by their ID.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipient ID
+ *     responses:
+ *       200:
+ *         description: Recipient retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/NotificationRecipient'
+ *       404:
+ *         description: Recipient not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   patch:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Update a notification recipient
+ *     description: Updates an existing notification recipient. All fields are optional.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipient ID
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateNotificationRecipient'
+ *           example:
+ *             name: Updated Name
+ *             notify_high: true
+ *             notify_critical: true
+ *     responses:
+ *       200:
+ *         description: Recipient updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/NotificationRecipient'
+ *                 message:
+ *                   type: string
+ *                   example: Recipient updated successfully
+ *       400:
+ *         description: Invalid email format or email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *
+ *   delete:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Delete a notification recipient
+ *     description: Permanently deletes a notification recipient.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipient ID
+ *     responses:
+ *       200:
+ *         description: Recipient deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Recipient deleted successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /api/notification-recipients/{id}/toggle:
+ *   patch:
+ *     tags:
+ *       - Notification Recipients
+ *     summary: Toggle recipient active status
+ *     description: Toggles the active/inactive status of a notification recipient.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Recipient ID
+ *     responses:
+ *       200:
+ *         description: Recipient status toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/NotificationRecipient'
+ *                 message:
+ *                   type: string
+ *                   example: Recipient activated successfully
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+// ============================================================================
 // SCHEMAS
 // ============================================================================
 
@@ -1076,6 +1928,353 @@
  *         error:
  *           type: string
  *           example: Detailed error message
+ *
+ *     Pagination:
+ *       type: object
+ *       properties:
+ *         page:
+ *           type: integer
+ *           example: 1
+ *         limit:
+ *           type: integer
+ *           example: 10
+ *         total:
+ *           type: integer
+ *           example: 100
+ *         totalPages:
+ *           type: integer
+ *           example: 10
+ *
+ *     AnomalyAlert:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         audit_log_id:
+ *           type: integer
+ *           example: 123
+ *         anomaly_type:
+ *           type: string
+ *           enum: [VOLUME_SPIKE, OFF_HOURS, MASS_DELETE, RAPID_UPDATES]
+ *           example: VOLUME_SPIKE
+ *         severity:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *           example: HIGH
+ *         description:
+ *           type: string
+ *           example: "User performed 75 actions within 60 minutes (threshold: 50)"
+ *         detected_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *         is_resolved:
+ *           type: boolean
+ *           example: false
+ *         resolved_by:
+ *           type: string
+ *           nullable: true
+ *           example: admin-001
+ *         resolved_at:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           example: '2026-01-22T11:00:00Z'
+ *         resolution_note:
+ *           type: string
+ *           nullable: true
+ *           example: Verified as authorized bulk operation
+ *         metadata:
+ *           type: object
+ *           description: Additional context about the anomaly
+ *           example:
+ *             user_id: user-123
+ *             action_count: 75
+ *             time_window_minutes: 60
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *         audit_log:
+ *           $ref: '#/components/schemas/AuditLog'
+ *
+ *     AnomalyStats:
+ *       type: object
+ *       properties:
+ *         total:
+ *           type: integer
+ *           example: 150
+ *         unresolved:
+ *           type: integer
+ *           example: 25
+ *         bySeverity:
+ *           type: object
+ *           properties:
+ *             LOW:
+ *               type: integer
+ *               example: 50
+ *             MEDIUM:
+ *               type: integer
+ *               example: 60
+ *             HIGH:
+ *               type: integer
+ *               example: 30
+ *             CRITICAL:
+ *               type: integer
+ *               example: 10
+ *         byType:
+ *           type: object
+ *           properties:
+ *             VOLUME_SPIKE:
+ *               type: integer
+ *               example: 40
+ *             OFF_HOURS:
+ *               type: integer
+ *               example: 35
+ *             MASS_DELETE:
+ *               type: integer
+ *               example: 25
+ *             RAPID_UPDATES:
+ *               type: integer
+ *               example: 50
+ *         recentActivity:
+ *           type: integer
+ *           description: Anomalies detected in last 24 hours
+ *           example: 12
+ *
+ *     AnomalyRule:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         rule_code:
+ *           type: string
+ *           example: VOLUME_SPIKE
+ *         rule_name:
+ *           type: string
+ *           example: Volume Spike Detection
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           example: Detects when a user performs an unusually high number of actions in a short time period
+ *         rule_config:
+ *           type: object
+ *           description: Rule-specific configuration parameters
+ *           example:
+ *             threshold: 50
+ *             time_window_minutes: 60
+ *         default_severity:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *           example: HIGH
+ *         is_active:
+ *           type: boolean
+ *           example: true
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *
+ *     CreateAnomalyRule:
+ *       type: object
+ *       required:
+ *         - rule_code
+ *         - rule_name
+ *         - rule_config
+ *       properties:
+ *         rule_code:
+ *           type: string
+ *           description: Unique identifier code for the rule (will be uppercased)
+ *           example: CUSTOM_RULE
+ *         rule_name:
+ *           type: string
+ *           description: Human-readable name for the rule
+ *           example: Custom Detection Rule
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: Detailed description of what the rule detects
+ *           example: Detects custom anomaly patterns based on specific criteria
+ *         rule_config:
+ *           type: object
+ *           description: Configuration parameters specific to this rule
+ *           example:
+ *             threshold: 10
+ *             time_window_minutes: 30
+ *         default_severity:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *           default: MEDIUM
+ *           example: MEDIUM
+ *         is_active:
+ *           type: boolean
+ *           default: true
+ *           example: true
+ *
+ *     UpdateAnomalyRule:
+ *       type: object
+ *       properties:
+ *         rule_name:
+ *           type: string
+ *           description: Human-readable name for the rule
+ *           example: Updated Rule Name
+ *         description:
+ *           type: string
+ *           nullable: true
+ *           description: Detailed description of what the rule detects
+ *         rule_config:
+ *           type: object
+ *           description: Configuration parameters specific to this rule
+ *           example:
+ *             threshold: 100
+ *         default_severity:
+ *           type: string
+ *           enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *           example: HIGH
+ *         is_active:
+ *           type: boolean
+ *           example: true
+ *
+ *     NotificationRecipient:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 1
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: admin@example.com
+ *         name:
+ *           type: string
+ *           example: System Administrator
+ *         role:
+ *           type: string
+ *           nullable: true
+ *           example: Admin
+ *         department:
+ *           type: string
+ *           nullable: true
+ *           example: IT
+ *         is_active:
+ *           type: boolean
+ *           example: true
+ *         notify_low:
+ *           type: boolean
+ *           description: Receive notifications for LOW severity anomalies
+ *           example: false
+ *         notify_medium:
+ *           type: boolean
+ *           description: Receive notifications for MEDIUM severity anomalies
+ *           example: true
+ *         notify_high:
+ *           type: boolean
+ *           description: Receive notifications for HIGH severity anomalies
+ *           example: true
+ *         notify_critical:
+ *           type: boolean
+ *           description: Receive notifications for CRITICAL severity anomalies
+ *           example: true
+ *         created_by:
+ *           type: string
+ *           nullable: true
+ *           example: admin-001
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-01-22T10:30:00Z'
+ *
+ *     CreateNotificationRecipient:
+ *       type: object
+ *       required:
+ *         - email
+ *         - name
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: Email address for notifications
+ *           example: admin@example.com
+ *         name:
+ *           type: string
+ *           description: Display name of the recipient
+ *           example: System Administrator
+ *         role:
+ *           type: string
+ *           nullable: true
+ *           description: Role or job title
+ *           example: Admin
+ *         department:
+ *           type: string
+ *           nullable: true
+ *           description: Department name
+ *           example: IT
+ *         notify_low:
+ *           type: boolean
+ *           default: false
+ *           description: Receive LOW severity notifications
+ *           example: false
+ *         notify_medium:
+ *           type: boolean
+ *           default: true
+ *           description: Receive MEDIUM severity notifications
+ *           example: true
+ *         notify_high:
+ *           type: boolean
+ *           default: true
+ *           description: Receive HIGH severity notifications
+ *           example: true
+ *         notify_critical:
+ *           type: boolean
+ *           default: true
+ *           description: Receive CRITICAL severity notifications
+ *           example: true
+ *
+ *     UpdateNotificationRecipient:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: Email address for notifications
+ *           example: updated@example.com
+ *         name:
+ *           type: string
+ *           description: Display name of the recipient
+ *           example: Updated Name
+ *         role:
+ *           type: string
+ *           nullable: true
+ *           description: Role or job title
+ *         department:
+ *           type: string
+ *           nullable: true
+ *           description: Department name
+ *         is_active:
+ *           type: boolean
+ *           description: Whether the recipient is active
+ *         notify_low:
+ *           type: boolean
+ *           description: Receive LOW severity notifications
+ *         notify_medium:
+ *           type: boolean
+ *           description: Receive MEDIUM severity notifications
+ *         notify_high:
+ *           type: boolean
+ *           description: Receive HIGH severity notifications
+ *         notify_critical:
+ *           type: boolean
+ *           description: Receive CRITICAL severity notifications
  *
  *   responses:
  *     BadRequest:

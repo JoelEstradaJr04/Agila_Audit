@@ -1,0 +1,14 @@
+
+// ============================================================================
+// SYSTEM CONFIGURATION
+// ============================================================================
+
+model system_config {
+  key         String   @id
+  value       String   @db.Text
+  description String?  @db.Text
+  is_encrypted Boolean @default(false)
+  
+  updated_at  DateTime @updatedAt
+  updated_by  String?
+}

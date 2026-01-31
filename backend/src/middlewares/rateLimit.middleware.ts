@@ -24,6 +24,8 @@ export const apiRateLimiter = rateLimit({
   skip: (req: any) => {
     return req.user?.role === 'SuperAdmin';
   },
+  // Validate is disabled to prevent trust proxy validation errors in development
+  validate: { trustProxy: false },
 });
 
 /**
@@ -39,6 +41,7 @@ export const writeRateLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
 });
 
 /**
@@ -54,4 +57,5 @@ export const readRateLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
 });
