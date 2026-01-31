@@ -5,7 +5,7 @@ import axios from 'axios';
 import '../styles/components/forms.css';
 import { showEmptyFieldWarning, showError, showSuccess } from '../utils/Alerts';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
 // Rule configuration types
 interface VolumeRuleConfig {
@@ -70,12 +70,12 @@ const AnomalyRulesModal: React.FC<Props> = ({ onClose }) => {
     const fetchRules = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/anomaly-rules`);
+            const res = await axios.get(`${API_URL}/api/anomaly-rules`);
             if (res.data.success) {
                 // If no rules exist, seed defaults first
                 if (res.data.data.length === 0) {
-                    await axios.post(`${API_URL}/anomaly-rules/seed-defaults`);
-                    const seededRes = await axios.get(`${API_URL}/anomaly-rules`);
+                    await axios.post(`${API_URL}/api/anomaly-rules/seed-defaults`);
+                    const seededRes = await axios.get(`${API_URL}/api/anomaly-rules`);
                     setRules(seededRes.data.data);
                 } else {
                     setRules(res.data.data);
@@ -176,7 +176,7 @@ const AnomalyRulesModal: React.FC<Props> = ({ onClose }) => {
         try {
             // Save each rule
             for (const rule of rules) {
-                await axios.patch(`${API_URL}/anomaly-rules/${rule.id}`, {
+                await axios.patch(`${API_URL}/api/anomaly-rules/${rule.id}`, {
                     rule_config: rule.rule_config,
                     default_severity: rule.default_severity,
                     is_active: rule.is_active

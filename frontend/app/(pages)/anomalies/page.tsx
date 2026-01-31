@@ -12,7 +12,7 @@ import FilterDropdown, { FilterSection } from '../../Components/filter';
 import '../../styles/components/table.css';
 import '../../globals.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
 export default function AnomaliesPage() {
     const [anomalies, setAnomalies] = useState<AnomalyAlert[]>([]);
@@ -45,7 +45,7 @@ export default function AnomaliesPage() {
                 if (filterResolved !== 'all') params.is_resolved = filterResolved;
                 if (search) params.search = search;
 
-                const res = await axios.get(`${API_URL}/anomalies`, { params });
+                const res = await axios.get(`${API_URL}/api/anomalies`, { params });
                 if (res.data.success) {
                     setAnomalies(res.data.data);
                     // Assuming backend returns pagination metadata, if not handling manually
@@ -79,7 +79,7 @@ export default function AnomaliesPage() {
 
     const handleResolve = async (id: number, note: string) => {
         try {
-            await axios.patch(`${API_URL}/anomalies/${id}/resolve`, { resolution_note: note });
+            await axios.patch(`${API_URL}/api/anomalies/${id}/resolve`, { resolution_note: note });
             // Refresh data and keep modal open? No, modal handles closing or we close it.
             setRefreshTrigger(prev => prev + 1);
             // alert('Anomaly resolved successfully.');

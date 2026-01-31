@@ -11,7 +11,7 @@ import Loading from '../../../Components/loading';
 import '../../../styles/components/table.css';
 import '../../../globals.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
 interface Recipient {
     id: number;
@@ -37,7 +37,7 @@ export default function NotificationSettingsPage() {
     const fetchRecipients = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}/notification-recipients`);
+            const res = await axios.get(`${API_URL}/api/notification-recipients`);
             if (res.data.success) {
                 setRecipients(res.data.data);
             }
@@ -54,7 +54,7 @@ export default function NotificationSettingsPage() {
 
     const handleCreateRecipient = async (data: RecipientData) => {
         try {
-            await axios.post(`${API_URL}/notification-recipients`, data);
+            await axios.post(`${API_URL}/api/notification-recipients`, data);
             setIsModalOpen(false);
             fetchRecipients();
             // alert('Recipient added successfully');
@@ -88,7 +88,7 @@ export default function NotificationSettingsPage() {
 
     const handleToggleStatus = async (id: number) => {
         try {
-            await axios.patch(`${API_URL}/notification-recipients/${id}/toggle`);
+            await axios.patch(`${API_URL}/api/notification-recipients/${id}/toggle`);
             setRecipients(recipients.map(r =>
                 r.id === id ? { ...r, is_active: !r.is_active } : r
             ));
@@ -100,7 +100,7 @@ export default function NotificationSettingsPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure?')) return;
         try {
-            await axios.delete(`${API_URL}/notification-recipients/${id}`);
+            await axios.delete(`${API_URL}/api/notification-recipients/${id}`);
             setRecipients(recipients.filter(r => r.id !== id));
         } catch (error) {
             console.error('Failed to delete recipient', error);
@@ -129,7 +129,7 @@ export default function NotificationSettingsPage() {
 
     const handleUpdateRecipient = async (id: number, data: RecipientData) => {
         try {
-            await axios.put(`${API_URL}/notification-recipients/${id}`, data);
+            await axios.put(`${API_URL}/api/notification-recipients/${id}`, data);
             setIsModalOpen(false);
             fetchRecipients();
         } catch (error: any) {
