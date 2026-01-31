@@ -15,6 +15,12 @@ import { config } from './config/env';
 import apiKeysRoutes from './routes/apiKeys.routes';
 import auditLogsRoutes from './routes/auditLogs.routes';
 
+// Anomaly Detection routes
+import anomalyRoutes from './routes/anomaly.routes';
+import notificationRecipientsRoutes from './routes/notificationRecipients.routes';
+import anomalyRulesRoutes from './routes/anomalyRules.routes';
+
+
 const app: Application = express();
 
 // Trust proxy - required for correct protocol detection behind Railway/reverse proxies
@@ -34,9 +40,9 @@ if (config.enableApiDocs) {
 app.use(helmet());
 
 // CORS configuration
-const corsOrigins = process.env.CORS_ORIGIN 
+const corsOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-  : ['http://localhost:4003'];
+  : ['http://localhost:4003', 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
 
 app.use(
   cors({
@@ -101,6 +107,14 @@ app.use('/api/audit-logs', auditLogsRoutes);
 
 // API keys management (SuperAdmin only)
 app.use('/api/keys', apiKeysRoutes);
+
+// ============================================================================
+// ANOMALY DETECTION ROUTES
+// ============================================================================
+app.use('/api/anomalies', anomalyRoutes);
+app.use('/api/notification-recipients', notificationRecipientsRoutes);
+app.use('/api/anomaly-rules', anomalyRulesRoutes);
+
 
 // ============================================================================
 // ERROR HANDLING

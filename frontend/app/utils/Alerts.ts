@@ -14,6 +14,7 @@ export const showEmptyFieldWarning = () => {
   });
 };
 
+
 export const showInvalidCategoryAlert = () => {
     return Swal.fire({
       icon: 'error',

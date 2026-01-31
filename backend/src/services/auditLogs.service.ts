@@ -11,6 +11,7 @@ import {
   AuditLogBriefResponse,
 } from '../types/auditLog';
 import { buildAuditDetails, buildBriefAuditDetails } from '../utils/auditDetails.util';
+import { checkForAnomalies } from './anomalyDetection.service';
 
 /**
  * Get the next version number for an entity
@@ -83,6 +84,11 @@ export async function createAuditLog(
     },
   });
 
+  // Trigger Anomaly Detection (Asynchronous - don't wait for it)
+  checkForAnomalies(auditLog.id).catch(err => {
+    console.error(`Error running anomaly detection for log #${auditLog.id}:`, err);
+  });
+
   return auditLog;
 }
 
@@ -101,10 +107,25 @@ function buildAccessFilter(user: JWTUser): any {
   // Department Admin - Can see all logs from their department
   // Uses action_from field which stores the department of action_by
   if (role.includes('Admin')) {
-    const department = role.split(' ')[0]; // e.g., "Finance" from "Finance Admin"
-    return {
-      action_from: department,
+    const department = role.split(' ')[0].toLowerCase();
+
+    // Filter by action_by that starts with department code
+    // This assumes user IDs follow pattern: FIN-YYYYMMDD-XXX
+    const deptCodes: Record<string, string> = {
+      'finance': 'FIN',
+      'hr': 'HR',
+      'inventory': 'INV',
+      'operations': 'OPS',
     };
+
+    const deptCode = deptCodes[department];
+    if (deptCode) {
+      return {
+        action_by: {
+          startsWith: deptCode,
+        },
+      };
+    }
   }
 
   // Regular user (Staff) - Can only see their own logs
@@ -144,23 +165,23 @@ export async function getAuditLogs(
     ...(action_by && { action_by }),
     ...(dateFrom &&
       dateTo && {
-        action_at: {
-          gte: new Date(dateFrom),
-          lte: new Date(dateTo + 'T23:59:59.999Z'),
-        },
-      }),
+      action_at: {
+        gte: new Date(dateFrom),
+        lte: new Date(dateTo + 'T23:59:59.999Z'),
+      },
+    }),
     ...(dateFrom &&
       !dateTo && {
-        action_at: {
-          gte: new Date(dateFrom),
-        },
-      }),
+      action_at: {
+        gte: new Date(dateFrom),
+      },
+    }),
     ...(!dateFrom &&
       dateTo && {
-        action_at: {
-          lte: new Date(dateTo + 'T23:59:59.999Z'),
-        },
-      }),
+      action_at: {
+        lte: new Date(dateTo + 'T23:59:59.999Z'),
+      },
+    }),
   };
 
   // Add action_type_code filter if provided
@@ -221,7 +242,7 @@ export async function getAuditLogs(
       ip_address: log.ip_address,            // Schema field
       created_at: log.created_at,            // Schema field
     };
-    
+
     // Generate human-readable details
     try {
       briefLog.details = buildBriefAuditDetails(
@@ -236,7 +257,7 @@ export async function getAuditLogs(
       console.error(`Error building details for audit log ${log.id}:`, error.message);
       briefLog.details = `Audit log entry for ${log.entity_type} (ID: ${log.entity_id}).`;
     }
-    
+
     return briefLog;
   });
 

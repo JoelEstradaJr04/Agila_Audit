@@ -348,6 +348,7 @@ td.actionButtons {
 .actionButtonsContainer .editBtn,
 .actionButtonsContainer .deleteBtn,
 .actionButtonsContainer .submitBtn,
+.actionButtonsContainer .downBtn,
 .actionButtonsContainer .approveBtn,
 .actionButtonsContainer .rejectBtn,
 .actionButtonsContainer .exportBtn,
@@ -410,6 +411,13 @@ td.actionButtons {
 }
 .approveBtn:hover {
   background-color: var(--success-hover-color) !important;
+}
+
+.downBtn {
+  background-color: var(--border-color) !important;
+}
+.downBtn:hover {
+  background-color: var(--border-hover-color) !important;
 }
 
 /* Reject button (Error/Red) */

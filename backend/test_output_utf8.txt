@@ -1,0 +1,54 @@
+﻿≡ƒÜÇ Starting Anomaly Detection Test Script...
+
+≡ƒöì Checking Email Configuration...
+Γ£à Email configured successfully via Resend API
+
+≡ƒöì Checking Recipients for MEDIUM severity...
+Γ£à Using 1 recipients from local database
+Γ£à Found 1 recipients for MEDIUM: agilafinance0@gmail.com
+----------------------------------------
+
+Γ£à Using Action Type: UPDATE (ID: 2)
+Creating 12 audit logs for TEST_ANOMALY_ENTITY:TEST_ID_1769183602063...
+Γ£à Created 12 logs. Last Log ID: 190
+≡ƒöì Triggering anomaly detection check...
+≡ƒöì Checking audit log #190 for anomalies...
+≡ƒÜ¿ Off-hours activity detected at Fri Jan 23 2026 23:53:22 GMT+0800 (Philippine Standard Time)
+≡ƒÜ¿ Rapid updates detected for entity TEST_ANOMALY_ENTITY:TEST_ID_1769183602063
+≡ƒñû Generating AI analysis for OFF_HOURS...
+Γä╣∩╕Å LLM not configured, using fallback explanation
+≡ƒÆ╛ Anomaly alert #20 stored in database
+Γ£à Using 1 recipients from local database
+≡ƒôº Sending email notifications for MEDIUM severity alert...
+Γ£à Anomaly alert email sent to 1 recipient(s) via Resend. ID: 8e949ece-2813-4c1c-9143-df3ec440cd88
+Γ£à Email sent to 1 recipient(s)
+≡ƒñû Generating AI analysis for RAPID_UPDATES...
+Γä╣∩╕Å LLM not configured, using fallback explanation
+≡ƒÆ╛ Anomaly alert #21 stored in database
+Γ£à Using 1 recipients from local database
+≡ƒôº Sending email notifications for MEDIUM severity alert...
+Γ£à Anomaly alert email sent to 1 recipient(s) via Resend. ID: 19875aed-c228-4e1b-8526-75b78098a544
+Γ£à Email sent to 1 recipient(s)
+ΓÜá∩╕Å 2 anomaly(s) detected and processed
+
+≡ƒÄë SUCCESS! Anomalies detected:
+ - Type: OFF_HOURS
+ - Severity: MEDIUM
+ - Context: {
+  actionTime: 2026-01-23T15:53:22.090Z,
+  dayOfWeek: 5,
+  hour: 23,
+  user: 'TEST_USER_ANOMALY',
+  configuredWorkHours: '8:00 - 18:00',
+  configuredWorkDays: [ 1, 2, 3, 4, 5 ]
+}
+ - Type: RAPID_UPDATES
+ - Severity: MEDIUM
+ - Context: {
+  updateCount: 12,
+  timeWindowMinutes: 5,
+  threshold: 10,
+  entityType: 'TEST_ANOMALY_ENTITY',
+  entityId: 'TEST_ID_1769183602063',
+  user: 'TEST_USER_ANOMALY'
+}
