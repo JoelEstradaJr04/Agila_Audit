@@ -14,7 +14,7 @@
     "seed:apikeys": "ts-node src/scripts/seedApiKeys.ts",
     "seed:actions": "ts-node prisma/seedActionTypes.ts",
     "seed:auditlogs": "ts-node prisma/seedAuditLogs.ts",
-    "seed:all": "pnpm seed:actions && pnpm seed:apikeys && pnpm seed:auditlogs",
+    "seed:all": "pnpm seed:actions && pnpm seed:apikeys",
     "test:details": "ts-node scripts/testAuditDetails.ts"
   },
   "dependencies": {
