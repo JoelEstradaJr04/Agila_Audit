@@ -64,6 +64,106 @@ type ViewModalProps = {
   onClose: () => void;
 };
 
+// Helper to check if data has enhanced format with fields array
+const isEnhancedFormat = (data: any): data is { summary: string; fields: Array<{ label: string; value: any }> } => {
+  return data && 
+    typeof data === 'object' && 
+    typeof data.summary === 'string' && 
+    Array.isArray(data.fields);
+};
+
+// Component to render enhanced field list
+const EnhancedFieldList: React.FC<{ fields: Array<{ label: string; value: any }> }> = ({ fields }) => {
+  if (!fields || fields.length === 0) return <span className="no-data">No details available</span>;
+  
+  return (
+    <div className="enhanced-fields-list">
+      {fields.map((field, index) => (
+        <div key={index} className="enhanced-field-row">
+          <span className="enhanced-field-label">{field.label}:</span>
+          <span className="enhanced-field-value">{field.value ?? '—'}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Component to render field changes for UPDATE actions
+const FieldChanges: React.FC<{ previousData: any; newData: any }> = ({ previousData, newData }) => {
+  // Check for enhanced change format
+  if (isEnhancedFormat(previousData) && isEnhancedFormat(newData)) {
+    const changes: Array<{ label: string; from: any; to: any }> = [];
+    
+    // Match fields by label and find differences
+    newData.fields.forEach((newField) => {
+      const prevField = previousData.fields.find((f: { label: string }) => f.label === newField.label);
+      if (prevField && prevField.value !== newField.value) {
+        changes.push({
+          label: newField.label,
+          from: prevField.value,
+          to: newField.value
+        });
+      }
+    });
+    
+    if (changes.length === 0) {
+      return <span className="no-data">No significant changes detected</span>;
+    }
+    
+    return (
+      <div className="field-changes-list">
+        {changes.map((change, index) => (
+          <div key={index} className="field-change-row">
+            <span className="change-field-label">{change.label}:</span>
+            <span className="change-from">{change.from ?? '—'}</span>
+            <span className="change-arrow">→</span>
+            <span className="change-to">{change.to ?? '—'}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Legacy format - show raw comparison
+  if (previousData && newData && typeof previousData === 'object' && typeof newData === 'object') {
+    const changes: Array<{ field: string; from: any; to: any }> = [];
+    const allKeys = new Set([...Object.keys(previousData), ...Object.keys(newData)]);
+    
+    allKeys.forEach((key) => {
+      if (key.startsWith('_')) return; // Skip internal fields
+      if (JSON.stringify(previousData[key]) !== JSON.stringify(newData[key])) {
+        changes.push({
+          field: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          from: previousData[key],
+          to: newData[key]
+        });
+      }
+    });
+    
+    if (changes.length === 0) {
+      return <span className="no-data">No changes detected</span>;
+    }
+    
+    return (
+      <div className="field-changes-list">
+        {changes.slice(0, 20).map((change, index) => (
+          <div key={index} className="field-change-row">
+            <span className="change-field-label">{change.field}:</span>
+            <span className="change-from">{typeof change.from === 'object' ? JSON.stringify(change.from) : String(change.from ?? '—')}</span>
+            <span className="change-arrow">→</span>
+            <span className="change-to">{typeof change.to === 'object' ? JSON.stringify(change.to) : String(change.to ?? '—')}</span>
+          </div>
+        ))}
+        {changes.length > 20 && (
+          <div className="changes-overflow">...and {changes.length - 20} more changes</div>
+        )}
+      </div>
+    );
+  }
+  
+  return <span className="no-data">Unable to display changes</span>;
+};
+
 const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
   if (!log) return null;
 
@@ -77,6 +177,8 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
       case 'UNARCHIVE': return '📂';
       case 'EXPORT': return '📤';
       case 'IMPORT': return '📥';
+      case 'APPROVE': return '✅';
+      case 'REJECT': return '❌';
       case 'LOGIN': return '🔓';
       case 'LOGOUT': return '🔒';
       default: return '📋';
@@ -86,13 +188,38 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
   const getTableIcon = (table?: string) => {
     if (!table) return '📊';
     switch (table.toLowerCase()) {
-      case 'expenserecord': return '💰';
-      case 'revenuerecord': return '📈';
-      case 'receipt': return '🧾';
-      case 'reimbursement': return '💳';
+      case 'expense': return '💰';
+      case 'journal_entry': return '📒';
+      case 'other_revenue':
+      case 'bus_trip_revenue':
+      case 'rental_revenue': return '📈';
+      case 'purchase_request': return '🛒';
+      case 'cash_advance': return '💵';
+      case 'budget_allocation': return '📊';
+      case 'accounts_payable': return '📤';
+      case 'accounts_receivable': return '📥';
+      case 'payroll_period': return '💳';
+      case 'chart_of_account': return '📋';
+      case 'attachment': return '📎';
       default: return '📊';
     }
   };
+
+  // Determine what data to show based on action type
+  const actionUpper = (log.action || '').toUpperCase();
+  const isUpdateAction = actionUpper === 'UPDATE';
+  const isDeleteAction = actionUpper === 'DELETE';
+  const hasEnhancedNewData = isEnhancedFormat(log.new_data);
+  const hasEnhancedPreviousData = isEnhancedFormat(log.previous_data);
+
+  // Extract summary for display
+  const getSummary = () => {
+    if (hasEnhancedNewData) return log.new_data.summary;
+    if (hasEnhancedPreviousData) return log.previous_data.summary;
+    return null;
+  };
+
+  const summary = getSummary();
 
   return (
     <div className="modalOverlay">
@@ -103,6 +230,14 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
         </div>
         <div className="modalContent">
           <div className="audit-details-container">
+            {/* Summary Banner (if available) */}
+            {summary && (
+              <div className="audit-summary-banner">
+                <span className="summary-icon">{getActionIcon(log.action)}</span>
+                <span className="summary-text">{summary}</span>
+              </div>
+            )}
+
             {/* Primary Information Card */}
             <div className="audit-detail-card">
               <div className="audit-detail-row">
@@ -126,7 +261,7 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
               <div className="audit-detail-row">
                 <div className="audit-detail-icon">{getTableIcon(log.table_affected)}</div>
                 <div className="audit-detail-content">
-                  <div className="audit-detail-label">Table Affected</div>
+                  <div className="audit-detail-label">Entity Type</div>
                   <div className="audit-detail-value">{formatDisplayText(log.table_affected || '')}</div>
                 </div>
               </div>
@@ -151,6 +286,13 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
                 </div>
               </div>
               <div className="audit-detail-row">
+                <div className="audit-detail-icon">🏢</div>
+                <div className="audit-detail-content">
+                  <div className="audit-detail-label">Department</div>
+                  <div className="audit-detail-value">{log.department || 'N/A'}</div>
+                </div>
+              </div>
+              <div className="audit-detail-row">
                 <div className="audit-detail-icon">🌐</div>
                 <div className="audit-detail-content">
                   <div className="audit-detail-label">IP Address</div>
@@ -161,21 +303,58 @@ const ViewDetailsModal: React.FC<ViewModalProps> = ({ log, onClose }) => {
               </div>
             </div>
 
-            {/* Details Card */}
-            <div className="audit-detail-card">
-              <div className="audit-detail-row">
-                <div className="audit-detail-icon">📋</div>
-                <div className="audit-detail-content">
-                  <div className="audit-detail-label">Details</div>
-                  <div className="audit-detail-value details-section">
-                    {typeof log.details === 'string'
-                      ? log.details
-                      : JSON.stringify(log.details, null, 2)
-                    }
+            {/* Record Details Card - for CREATE, APPROVE, REJECT actions */}
+            {hasEnhancedNewData && !isUpdateAction && (
+              <div className="audit-detail-card">
+                <div className="audit-detail-card-header">
+                  <span className="card-header-icon">📋</span>
+                  <span className="card-header-title">Record Details</span>
+                </div>
+                <EnhancedFieldList fields={log.new_data.fields} />
+              </div>
+            )}
+
+            {/* Changes Card - for UPDATE actions */}
+            {isUpdateAction && (log.previous_data || log.new_data) && (
+              <div className="audit-detail-card">
+                <div className="audit-detail-card-header">
+                  <span className="card-header-icon">📝</span>
+                  <span className="card-header-title">Changes Made</span>
+                </div>
+                <FieldChanges previousData={log.previous_data} newData={log.new_data} />
+              </div>
+            )}
+
+            {/* Deleted Record Card - for DELETE actions */}
+            {isDeleteAction && hasEnhancedPreviousData && (
+              <div className="audit-detail-card deleted-record-card">
+                <div className="audit-detail-card-header">
+                  <span className="card-header-icon">🗑️</span>
+                  <span className="card-header-title">Deleted Record Details</span>
+                </div>
+                <EnhancedFieldList fields={log.previous_data.fields} />
+              </div>
+            )}
+
+            {/* Fallback Details Card - for legacy or non-enhanced data */}
+            {!hasEnhancedNewData && !hasEnhancedPreviousData && log.details && (
+              <div className="audit-detail-card">
+                <div className="audit-detail-row">
+                  <div className="audit-detail-icon">📋</div>
+                  <div className="audit-detail-content">
+                    <div className="audit-detail-label">Details</div>
+                    <div className="audit-detail-value details-section">
+                      {typeof log.details === 'string'
+                        ? log.details.split('\n').map((line, i) => (
+                            <div key={i} className="detail-line">{line}</div>
+                          ))
+                        : JSON.stringify(log.details, null, 2)
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

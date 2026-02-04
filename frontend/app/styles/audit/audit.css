@@ -317,3 +317,236 @@
     font-size: 0.9rem;
   }
 }
+
+/* ============================================================
+   ENHANCED AUDIT LOG DISPLAY STYLES
+   For denormalized, human-readable audit data
+   ============================================================ */
+
+/* Summary Banner */
+.audit-summary-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover-color) 100%);
+  color: white;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.audit-summary-banner .summary-icon {
+  font-size: 1.5rem;
+}
+
+.audit-summary-banner .summary-text {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Card Header */
+.audit-detail-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.audit-detail-card-header .card-header-icon {
+  font-size: 1.1rem;
+}
+
+.audit-detail-card-header .card-header-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced Fields List */
+.enhanced-fields-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.enhanced-field-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 35%) 1fr;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--table-header-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.enhanced-field-label {
+  color: var(--secondary-text-color);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.enhanced-field-value {
+  color: var(--primary-text-color);
+  word-break: break-word;
+}
+
+/* Field Changes List (for UPDATE actions) */
+.field-changes-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field-change-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 25%) 1fr auto 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--table-header-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  align-items: center;
+}
+
+.change-field-label {
+  color: var(--secondary-text-color);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.change-from {
+  color: var(--error-chip-text-color);
+  background: var(--error-chip-bg-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-decoration: line-through;
+  word-break: break-word;
+  text-align: center;
+}
+
+.change-arrow {
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.change-to {
+  color: var(--success-chip-text-color);
+  background: var(--success-chip-bg-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  word-break: break-word;
+  text-align: center;
+}
+
+/* Deleted Record Card styling */
+.deleted-record-card {
+  border-left: 4px solid var(--error-color);
+}
+
+.deleted-record-card .enhanced-field-row {
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* Overflow indicator */
+.changes-overflow {
+  text-align: center;
+  padding: 0.5rem;
+  color: var(--secondary-text-color);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* No data placeholder */
+.no-data {
+  color: var(--secondary-text-color);
+  font-style: italic;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+/* Detail line formatting */
+.detail-line {
+  padding: 0.15rem 0;
+}
+
+.detail-line:empty {
+  height: 0.5rem;
+}
+
+/* Additional action badge styles */
+.action-badge.archive {
+  background: var(--warning-chip-bg-color);
+  color: var(--warning-chip-text-color);
+}
+
+.action-badge.unarchive {
+  background: var(--info-chip-bg-color);
+  color: var(--info-chip-text-color);
+}
+
+.action-badge.approve {
+  background: var(--success-chip-bg-color);
+  color: var(--success-chip-text-color);
+}
+
+.action-badge.reject {
+  background: var(--error-chip-bg-color);
+  color: var(--error-chip-text-color);
+}
+
+.action-badge.import {
+  background: var(--info-chip-bg-color);
+  color: var(--info-chip-text-color);
+}
+
+.action-badge.login,
+.action-badge.logout {
+  background: var(--secondary-text-color);
+  color: white;
+}
+
+/* Responsive for enhanced fields */
+@media (max-width: 768px) {
+  .audit-summary-banner {
+    padding: 0.75rem 1rem;
+  }
+  
+  .audit-summary-banner .summary-icon {
+    font-size: 1.25rem;
+  }
+  
+  .audit-summary-banner .summary-text {
+    font-size: 0.9rem;
+  }
+  
+  .enhanced-field-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+  
+  .field-change-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    text-align: left;
+  }
+  
+  .change-from,
+  .change-to {
+    text-align: left;
+  }
+  
+  .change-arrow {
+    transform: rotate(90deg);
+    justify-self: center;
+    margin: 0.25rem 0;
+  }
+}
