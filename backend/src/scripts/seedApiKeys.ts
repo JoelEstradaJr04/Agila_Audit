@@ -45,6 +45,12 @@ const defaultApiKeys: SeedApiKey[] = [
     canWrite: true,
     canRead: false,
   },
+  {
+    serviceName: 'budget',
+    rawKey: process.env.BUDGET_API_KEY || 'BUDGET_DEFAULT_KEY',
+    canWrite: true,
+    canRead: false,
+  },
 ];
 
 // ============================================================================
